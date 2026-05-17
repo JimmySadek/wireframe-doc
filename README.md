@@ -1,6 +1,40 @@
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](CHANGELOG.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 # wireframe-doc
 
-A lightweight, token-cheap pattern for authoring and sharing product wireframes. Contributors write structured Markdown (ASCII frames + reviewer notes + Mermaid flow diagrams); the render script outputs a single-file HTML deployable to any static host.
+> Figma is for designing. **wireframe-doc is for deciding what to design.**
+
+A Claude Code skill that turns a Markdown spec into a single self-contained HTML
+page of low-fidelity screen wireframes — ASCII frames in device chrome, a flow
+diagram, reviewer notes — that you share as one URL. 50–150 KB, no design tool,
+no export. Built for the messy moment before design: when you need cofounders
+or your team reacting to the screens in your head.
+
+## The problem
+
+The fastest way to align on a product flow is to show people the screens. But
+the tools for that are heavy — Figma means a license, a learning curve, and a
+~1.8 MB export for what's still just a sketch. So the screens stay in your head,
+or in a doc nobody can picture, and you commit to a design before anyone's
+reacted to the flow.
+
+## Who it's for
+
+- Founders, pre-design — get cofounders reacting to a flow before you spend a design cycle on it.
+- Product and engineering with no designer in the loop — sketch the screens, drop the link in Slack, read the notes when people get to them.
+- Anyone who'd otherwise send a heavy Figma export — replace it with a URL that opens on a phone.
+
+## wireframe-doc vs a real design tool
+
+| | wireframe-doc | Figma / design tool |
+|---|---|---|
+| Stage | Before design — deciding the flow | During design — making it real |
+| Fidelity | Low-fi, intent over polish | Pixel-perfect |
+| Output | One ~100 KB URL | ~1.8 MB file / export |
+| Audience | Cofounders, team, async reviewers | Designers, stakeholders |
+
+Use wireframe-doc to decide what to build. Switch to a real design tool to make it look right.
 
 ---
 
