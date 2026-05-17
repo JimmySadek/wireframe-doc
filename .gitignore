@@ -1,0 +1,17 @@
+# Strategic Partner session-work dirs — never ship in a public skill repo
+.handoffs/
+.prompts/
+.scripts/
+.backlog/
+
+# Agent-generated local state (routing matrix + Serena project memory)
+.claude/
+.serena/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Local-only confidentiality denylist for scripts/pre-publish-check.sh —
+# holds project-specific confidential markers; MUST NEVER be committed.
+.pre-publish-denylist
