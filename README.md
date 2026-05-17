@@ -1,6 +1,6 @@
 ![wireframe-doc — Markdown spec to HTML wireframes](assets/banner.jpg)
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 # wireframe-doc
@@ -46,7 +46,7 @@ Use wireframe-doc to decide what to build. Switch to a real design tool to make 
 2. Fill in frontmatter + scene + open questions + frames + notes
 3. Render: `node scripts/wireframe-render.mjs your-spec.md output.html`
 4. Open `output.html` in a browser, or deploy to any static host
-5. Share the URL
+5. Share the URL — or use a frame's **Copy link** button to share one screen for discussion
 
 ---
 
@@ -104,7 +104,7 @@ The render output is a **single self-contained HTML file**. Deploy it to any sta
 |--------|--------------|
 | `## {Flow name}` | Defines a flow section (e.g., `## Onboarding flow`) |
 | `### Frame: {Name}` | Defines a frame within the current flow |
-| `key: {kebab-key}` | Frame key — REQUIRED, on the line right after `### Frame:`. Used as Mermaid node IDs and URL anchors (`#frame-{key}`). Must be lowercase kebab-case, unique per doc. |
+| `key: {kebab-key}` | Frame key — REQUIRED, on the line right after `### Frame:`. Used as Mermaid node IDs and the deep-link anchor (`#frame-{key}`) behind each frame's **Copy link** button. Must be lowercase kebab-case, unique per doc. |
 | `device: {value}` | Per-frame device override — OPTIONAL, placed after `key:` and before the scene paragraph. Values: `phone` / `tablet` / `desktop` / `custom WxH` (e.g., `custom 1440x900`). |
 | Paragraph after `### Frame:` line | Optional scene/flavor text (after `key:` and `device:` lines) |
 | ` ```ascii ` block | Screen *contents* (monospace, whitespace preserved). The device frame is the screen border — **don't draw an outer box**; internal panels/tables are fine. Emoji ≈ 2 columns. |
@@ -162,7 +162,7 @@ ASCII blocks (` ```ascii ` fences) stay literal in `<pre>` for correct monospace
 - Warning: if a frame key is absent from the Mermaid diagram, the renderer warns
 - Auto-generation: if the `## Stream → screens` block is omitted entirely, the renderer auto-generates a linear `graph LR; key1 --> key2 --> ...` from frame order
 
-**Frame anchor URLs:** `#frame-{key}` (e.g., `#frame-landing`). Position-independent — anchors don't change when you reorder frames.
+**Sharing one frame:** every frame has a **Copy link** button (with a hover/focus education tooltip explaining the use case) — the primary way a reviewer shares a single screen for discussion. It copies the frame's deep link, whose underlying form is `#frame-{key}` (e.g., `#frame-landing`); position-independent, so anchors don't change when you reorder frames. Opening a shared link highlights the linked frame with a "Shared frame" marker so the recipient sees exactly which screen was sent.
 
 ---
 
