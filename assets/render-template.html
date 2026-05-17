@@ -166,10 +166,56 @@
       scroll-snap-align: start;
       position: relative;
     }
+    /* Deep-link arrival: mark WHICH frame was shared so the recipient can
+       identify it. Restrained, palette-locked — a heavier neutral accent
+       border + a small neutral text marker. No hue, glow, or decorative
+       shadow (CLAUDE.md palette guardrail). */
     .frame-card:target {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+      border-color: var(--accent);
     }
+    /* Badge sits INSIDE the card (top-right of the padding box) so the
+       strip's overflow:auto cannot clip it. */
+    .frame-card:target::before {
+      content: "Shared frame";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--bg-card);
+      background: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      z-index: 2;
+    }
+    /* The shared frame's enlarged screen, on deep-link arrival: a heavier,
+       distinct accent bezel so it reads as "this is the shared one". The
+       device border is normally 2px #1A1A1A; the target gets a 4px accent
+       bezel. A border (not outline) so it is not clipped by the scaler's
+       overflow:hidden and scales with the device as one unit. Neutral
+       accent only — no hue/glow/decorative shadow (palette guardrail). */
+    .modal-device.deep-link-target {
+      border-width: 4px;
+      border-color: var(--accent);
+    }
+    .modal-frame .deep-link-badge {
+      display: none;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--bg-card);
+      background: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .modal-frame.deep-link-arrival .deep-link-badge { display: inline-block; }
 
     /* ── Device screen: a bezel with a touch of device affordance ──
        The HTML frame IS the screen now — authors draw screen *contents*, not
@@ -947,14 +993,27 @@
       if (modal.open) scaleActiveFrame();
     });
 
-    /* ── Close ── */
+    /* ── Close ──
+       Backdrop-close uses the native-<dialog> target test, NOT bounding-rect
+       coordinate math. The old clientX/Y vs getBoundingClientRect() check
+       misfired once the enlarged frame made the centred dialog as tall as the
+       viewport: a real Prev/Next click then resolved to a clientY beyond the
+       clipped rect.bottom and was misread as an outside click, closing the
+       modal instead of navigating. A backdrop click has the dialog element
+       itself as target; any click on inner content (incl. the nav buttons)
+       targets an inner element. We also require the mousedown to have started
+       on the backdrop so a text drag-selection that releases on the backdrop
+       does not close the modal. No geometry, so dialog size/scroll is moot. */
     closeBtn.addEventListener('click', closeModal);
+    var pressedOnBackdrop = false;
+    modal.addEventListener('mousedown', function(e) {
+      pressedOnBackdrop = (e.target === modal);
+    });
     modal.addEventListener('click', function(e) {
-      var rect = modal.getBoundingClientRect();
-      if (e.clientX < rect.left || e.clientX > rect.right ||
-          e.clientY < rect.top || e.clientY > rect.bottom) {
+      if (e.target === modal && pressedOnBackdrop) {
         closeModal();
       }
+      pressedOnBackdrop = false;
     });
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && modal.open) closeModal();
@@ -962,7 +1021,18 @@
       if (e.key === 'ArrowRight' && modal.open) showFrame(currentIdx + 1);
     });
 
-    /* ── Hash-on-load: #frame-{key} ── */
+    /* ── Hash-on-load: #frame-{key} ──
+       On deep-link arrival, mark WHICH frame was shared so the recipient can
+       identify it: a restrained accent ring on the enlarged screen + a small
+       neutral "Shared frame" badge. The marker stays bound to the arrival
+       frame, so navigating away and back keeps the shared-frame identity. */
+    function markDeepLinkTarget(idx) {
+      var f = frames[idx];
+      if (!f) return;
+      f.classList.add('deep-link-arrival');
+      var dev = f.querySelector('.modal-device');
+      if (dev) dev.classList.add('deep-link-target');
+    }
     (function () {
       var hash = window.location.hash;
       if (!hash) return;
@@ -971,13 +1041,13 @@
       if (keyMatch) {
         var key = keyMatch[1];
         var idx = frames.findIndex(function(f) { return f.dataset.key === key; });
-        if (idx >= 0) { openModal(idx); return; }
+        if (idx >= 0) { markDeepLinkTarget(idx); openModal(idx); return; }
       }
       /* Fallback: numeric index for back-compat */
       var numMatch = hash.match(/^#frame-(\d+)/);
       if (numMatch) {
         var numIdx = parseInt(numMatch[1], 10) - 1;
-        if (numIdx >= 0 && numIdx < frames.length) openModal(numIdx);
+        if (numIdx >= 0 && numIdx < frames.length) { markDeepLinkTarget(numIdx); openModal(numIdx); }
       }
     }());
   }());

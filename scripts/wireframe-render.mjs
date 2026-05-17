@@ -630,6 +630,7 @@ function generateModalFrames(flows) {
       html += `  <div class="modal-content">\n`;
       html += `    <div class="modal-device-scaler"><div class="modal-device ${dev.cssClass}"${modalDeviceStyle}><pre style="--ascii-fs:${fsModal}px">${escapeHtml(frame.ascii)}</pre></div></div>\n`;
       html += `    <div class="modal-notes">\n`;
+      html += `      <span class="deep-link-badge">Shared frame — you were linked here</span>\n`;
       html += `      <h2>${escapeHtml(frame.name)}</h2>\n`;
       html += `      <div class="modal-share">${copyLinkButton(key)}</div>\n`;
       if (frame.scene) {

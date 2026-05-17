@@ -20,10 +20,20 @@ contract is preserved unchanged.
   desktop 1280×800, custom WxH at its injected ratio — same fixed sizes as the
   inline canvas frame) and is scaled as a single unit (bezel + chrome + ASCII
   together) via a uniform CSS `transform: scale(...)` computed per-frame from
-  the viewport, with `transform-origin: top center`. Aspect ratio is exact and
+  the viewport, with `transform-origin: top left`. Aspect ratio is exact and
   the v1.1.0 chrome (bezel, notch/camera dot, browser-chrome bar + window dots,
   corner radii) stays intact at the scaled size. Re-fits on viewport resize;
   small-screen (≤768px) modal display remains sane.
+- **Modal Prev/Next no longer closes the modal.** The backdrop-close handler
+  used bounding-rect coordinate math (`clientX/Y` vs
+  `getBoundingClientRect()`). Once the true-proportion enlarged frame made the
+  centred dialog as tall as the viewport, a real Prev/Next click resolved to a
+  `clientY` beyond the dialog's clipped `rect.bottom` and was misread as an
+  outside click — closing the modal instead of navigating. Replaced with the
+  standard native-`<dialog>` target test: close only when the click (and its
+  originating `mousedown`) target the dialog element itself (the backdrop);
+  any click on inner content, including the nav buttons, navigates. No
+  geometry, so dialog size/scroll/centering can no longer misfire it.
 
 ### Added
 
@@ -36,6 +46,14 @@ contract is preserved unchanged.
   "Copied ✓" for ~1.5s. A lightweight, reduced-motion-safe CSS tooltip
   (revealed on hover AND keyboard focus) explains the use case. The existing
   hash-on-load deep-link behaviour is unchanged.
+- **Deep-link target frame differentiator.** When a shared `#frame-{key}` link
+  is opened, the recipient can now see WHICH frame was shared: the enlarged
+  screen gets a heavier neutral-accent bezel and a small "Shared frame — you
+  were linked here" badge above the notes, and the inline `:target` card gets
+  a stronger accent outline + "Shared frame" badge. Restrained and
+  palette-locked — `var(--accent)` neutral gray only, no hue/glow/decorative
+  shadow. The marker stays bound to the arrival frame, so paging away and back
+  keeps the shared-frame identity correct.
 
 ### Changed
 
