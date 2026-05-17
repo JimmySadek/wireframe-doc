@@ -456,20 +456,21 @@
     .modal-frame.modal-wide .modal-content { flex-direction: column; }
     .modal-frame.modal-wide .modal-notes { max-width: 920px; }
     /* ── Enlarged screen: TRUE device proportions, scaled as one unit ──
-       The scaler wraps the device and carries a uniform transform: scale(s)
-       (s set per-frame by the modal script from the viewport). Its width/height
-       are set inline to the SCALED footprint so the dialog reserves the right
-       space (a transformed element keeps its untransformed layout box, which
-       would otherwise overflow). The device itself holds its fixed logical
-       viewport — same fixed width/min-height as the inline .device-frame — so
-       the bezel + chrome scale with the ASCII and the aspect ratio is exact. */
+       The scaler is ONLY a layout-reservation box: the modal script sets its
+       width/height (inline) to the SCALED device footprint (natW*s × natH*s)
+       so the flex row reserves exactly the right space. The transform lives on
+       the DEVICE, not the scaler — applying both the explicit size and the
+       scale to one element double-shrinks it (the bug that clipped the device
+       in the side-by-side row). With the transform on the device and the box
+       on the scaler, the scaled device exactly fills the reserved box. The
+       device keeps its fixed logical viewport (same as the inline frame) so
+       the bezel + chrome + ASCII scale together and the ratio is exact. */
     .modal-device-scaler {
       flex: 0 0 auto;
-      transform-origin: top left;
-      overflow: hidden;
     }
     .modal-device {
       flex: 0 0 auto;
+      transform-origin: top left;
       background: var(--device-frame-bg);
       border: 2px solid #1A1A1A;
       border-radius: 28px;
@@ -865,34 +866,106 @@
       nextBtn.disabled = (currentIdx === frames.length - 1);
     }
 
-    /* Scale the active enlarged device as ONE unit (bezel + chrome + ASCII)
-       to fit the viewport while preserving its true logical aspect ratio.
-       The device keeps its fixed logical width/min-height (CSS); we read its
-       natural box, compute a uniform scale that fits the available space, and
-       pin the scaler's layout box to the SCALED footprint so the dialog
-       reserves the right space and never overflows. */
+    /* Scale the active enlarged device as ONE unit (bezel + chrome + ASCII +
+       the deep-link border) to fit the space it ACTUALLY has, preserving its
+       true logical aspect ratio. The budget is MEASURED from the rendered
+       layout — never guessed from the viewport — because the dialog is
+       width:fit-content / max-width:95vw and the notes column is flex:1, so a
+       viewport formula cannot know the real device budget and scales it too
+       large for the side-by-side row (then overflow:hidden clips it — the
+       reported bug).
+
+       What is measured vs. what is a real CSS constraint:
+       - dialog inner box: clientW/H is unreliable while width:fit-content is
+         still resolving, so the hard ceiling is the dialog's real CSS caps —
+         max-width:95vw / max-height:92vh — minus the dialog's COMPUTED padding
+         (read from getComputedStyle, not assumed). These are constraints, not
+         guesses.
+       - notes column: its real rendered width/height is MEASURED. To break the
+         flex circularity (notes:flex:1 width depends on the device width) we
+         first park the scaler at the device's natural size so the row is at
+         its widest; notes then settles at its true minimum beside it and we
+         measure THAT. A second pass re-measures after the real scale is in.
+       - the flex gap and the modal-nav height are MEASURED from the elements.
+       natW/natH come from device.offsetWidth/Height which, with global
+       box-sizing:border-box, already include the bezel border (2px, or 4px on
+       the shared frame) so that border is inside the fitted unit and is never
+       itself clipped. */
+    function fitScale(frame, scaler, device, dialog) {
+      var isWide = frame.classList.contains('modal-wide');
+      var content = frame.querySelector('.modal-content');
+      var notes = frame.querySelector('.modal-notes');
+      var nav = dialog.querySelector('.modal-nav');
+
+      var natW = device.offsetWidth;
+      var natH = device.offsetHeight;
+      if (!natW || !natH) return null;
+
+      var dcs = getComputedStyle(dialog);
+      var padX = parseFloat(dcs.paddingLeft) + parseFloat(dcs.paddingRight);
+      var padY = parseFloat(dcs.paddingTop) + parseFloat(dcs.paddingBottom);
+      /* Real CSS caps (95vw / 92vh) minus measured padding = the true inner
+         box the dialog can ever offer, independent of fit-content timing. */
+      var innerW = Math.round(window.innerWidth  * 0.95) - padX;
+      var innerH = Math.round(window.innerHeight * 0.92) - padY;
+
+      var ccs = getComputedStyle(content);
+      var gap = parseFloat(ccs.rowGap || ccs.columnGap || ccs.gap) || 0;
+      var navH = nav ? nav.getBoundingClientRect().height : 0;
+      var notesR = notes ? notes.getBoundingClientRect() : { width: 0, height: 0 };
+
+      var availW, availH;
+      if (isWide) {
+        /* Column: device on top, notes below, nav below that. Device gets the
+           full inner width and the height left after notes + gap + nav. */
+        availW = innerW;
+        availH = innerH - notesR.height - gap - navH;
+      } else {
+        /* Row: device beside notes; nav below the row. Device gets the inner
+           width left after the measured notes column + gap, and the inner
+           height left after the nav. */
+        availW = innerW - notesR.width - gap;
+        availH = innerH - navH;
+      }
+      availW = Math.max(40, availW);
+      availH = Math.max(40, availH);
+      return Math.min(1, availW / natW, availH / natH);
+    }
+
+    /* Transform on the DEVICE; the scaler box reserves the scaled footprint.
+       transform-origin is top-left (CSS) so the scaled device occupies
+       [0..natW*s] × [0..natH*s] — exactly the reserved scaler box. */
+    function applyScale(scaler, device, natW, natH, s) {
+      device.style.transform = 'scale(' + s + ')';
+      scaler.style.width  = (natW * s) + 'px';
+      scaler.style.height = (natH * s) + 'px';
+    }
+
     function scaleActiveFrame() {
       var frame = frames[currentIdx];
       if (!frame) return;
       var scaler = frame.querySelector('.modal-device-scaler');
       var device = frame.querySelector('.modal-device');
       if (!scaler || !device) return;
-      /* Measure at natural (unscaled) size. */
-      scaler.style.transform = 'none';
+      /* Measure the device's natural box untransformed (offsetWidth ignores
+         transforms, but reset for clarity and to settle the reserved box). */
+      device.style.transform = 'none';
       scaler.style.width = '';
       scaler.style.height = '';
-      var natW = device.offsetWidth;
-      var natH = device.offsetHeight;
+      var natW = device.offsetWidth, natH = device.offsetHeight;
       if (!natW || !natH) return;
-      var isWide = frame.classList.contains('modal-wide');
-      /* Budget: dialog padding + notes (column for wide, row for phone) +
-         modal nav. Conservative caps keep the unit inside the dialog. */
-      var availW = Math.max(220, (window.innerWidth  * 0.95) - 60 - (isWide ? 0 : 320));
-      var availH = Math.max(220, (window.innerHeight * 0.92) - 60 - (isWide ? 220 : 90));
-      var scale = Math.min(1, availW / natW, availH / natH);
-      scaler.style.transform = 'scale(' + scale + ')';
-      scaler.style.width  = (natW * scale) + 'px';
-      scaler.style.height = (natH * scale) + 'px';
+
+      /* Pass 1: device at natural size → row at its widest → notes column at
+         its true minimum beside it; measure and scale from that. */
+      var s1 = fitScale(frame, scaler, device, modal);
+      if (s1 == null) return;
+      applyScale(scaler, device, natW, natH, s1);
+
+      /* Pass 2: the notes column may have reflowed now the device occupies its
+         real (scaled) space; re-measure once and shrink further if needed. */
+      device.style.transform = 'none';
+      var s2 = fitScale(frame, scaler, device, modal);
+      applyScale(scaler, device, natW, natH, (s2 != null && s2 < s1 - 0.005) ? s2 : s1);
     }
 
     function showFrame(idx) {

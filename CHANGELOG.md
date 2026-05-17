@@ -14,16 +14,24 @@ contract is preserved unchanged.
 
 ### Fixed
 
-- **Enlarge-modal proportions.** Tapping enlarge previously shrink-wrapped the
-  bezel around the ASCII (a phone became a wide ASCII-shaped box). The modal
-  device now holds its true logical viewport (phone 390×844, tablet 768×1024,
-  desktop 1280×800, custom WxH at its injected ratio — same fixed sizes as the
-  inline canvas frame) and is scaled as a single unit (bezel + chrome + ASCII
-  together) via a uniform CSS `transform: scale(...)` computed per-frame from
-  the viewport, with `transform-origin: top left`. Aspect ratio is exact and
-  the v1.1.0 chrome (bezel, notch/camera dot, browser-chrome bar + window dots,
-  corner radii) stays intact at the scaled size. Re-fits on viewport resize;
-  small-screen (≤768px) modal display remains sane.
+- **Enlarge-modal proportions, fully contained at every window size.** Tapping
+  enlarge previously shrink-wrapped the bezel around the ASCII (a phone became
+  a wide ASCII-shaped box). The modal device now holds its true logical
+  viewport (phone 390×844, tablet 768×1024, desktop 1280×800, custom WxH at
+  its injected ratio — same fixed sizes as the inline canvas frame) and is
+  scaled as a single unit (bezel + chrome + ASCII + the shared-frame border
+  together) via a uniform CSS `transform: scale(...)` with
+  `transform-origin: top left`. The transform sits on the device while a
+  reservation wrapper holds the scaled footprint, so the unit can never
+  double-shrink or be flex-squeezed. The scale is computed from the **measured
+  rendered layout** — the dialog's real content box, the live notes-column
+  width, the real flex gap and nav height (two-pass, re-measured after the
+  notes reflow) — not a viewport guess, so the device is fully visible inside
+  the dialog in both the phone side-by-side and the wide stacked layout at any
+  window size. Aspect ratio is exact and the v1.1.0 chrome (bezel,
+  notch/camera dot, browser-chrome bar + window dots, corner radii) stays
+  intact at the scaled size. Re-fits on viewport resize; small-screen
+  (≤768px) modal display remains sane.
 - **Modal Prev/Next no longer closes the modal.** The backdrop-close handler
   used bounding-rect coordinate math (`clientX/Y` vs
   `getBoundingClientRect()`). Once the true-proportion enlarged frame made the
