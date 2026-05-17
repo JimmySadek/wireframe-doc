@@ -14,9 +14,13 @@ diagram, reviewer notes — that you share as one URL. ~50 KB for a small deck,
 messy moment before design: when you need cofounders or your team reacting to
 the screens in your head.
 
-![A rendered wireframe-doc deck — the tap-to-enlarge modal, showing a device-framed screen, reviewer notes, and the Copy link button](assets/sample.png)
+![A rendered wireframe-doc deck — device-framed screens with reviewer notes, the Copy link button, and the enlarge control](assets/sample.png)
 
-*A rendered deck — device-framed screens, flow diagram, and reviewer notes, shared as one URL. Every screen is authored as plain Markdown ASCII.*
+*A rendered deck — device-framed screens, reviewer notes, shared as one URL. Every screen is authored as plain Markdown ASCII.*
+
+![Opening a shared frame link — the recipient lands on exactly that screen, badged "Shared frame", with notes and Copy link to start the discussion](assets/sample-shared.png)
+
+*Open a shared link and you land on the exact frame, marked so the recipient knows which screen is under discussion.*
 
 ## The problem
 
