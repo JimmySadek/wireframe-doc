@@ -304,12 +304,57 @@
       justify-content: space-between;
       gap: 8px;
     }
-    .frame-anchor {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-decoration: none;
+    /* ── Copy-link button + education tooltip (inline footer AND modal) ──
+       Restrained control — same neutral border/padding idiom as .enlarge-btn,
+       no brand colour or decoration. */
+    .copy-link-btn {
+      position: relative;
+      font-size: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      color: var(--accent);
+      min-width: 44px;
+      min-height: 44px;
+      /* transition set by prefers-reduced-motion block */
     }
-    .frame-anchor:hover { color: var(--accent); }
+    @media (prefers-reduced-motion: no-preference) {
+      .copy-link-btn { transition: background 0.1s, color 0.1s; }
+    }
+    .copy-link-btn:hover { background: var(--accent); color: #fff; }
+    /* Lightweight CSS tooltip — revealed on hover AND keyboard focus.
+       Opacity-only; no motion-dependent reveal, reduced-motion safe. */
+    .copy-link-btn .copy-tip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 240px;
+      background: var(--text);
+      color: var(--bg-card);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.4;
+      text-align: left;
+      padding: 7px 10px;
+      border-radius: 6px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 10;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .copy-link-btn .copy-tip { transition: opacity 0.1s; }
+    }
+    .copy-link-btn:hover .copy-tip,
+    .copy-link-btn:focus-visible .copy-tip {
+      opacity: 1;
+      visibility: visible;
+    }
+    .frame-footer .copy-link-btn .copy-tip { left: 0; transform: none; }
     .enlarge-btn {
       font-size: 12px;
       background: none;
@@ -324,6 +369,14 @@
       .enlarge-btn { transition: background 0.1s, color 0.1s; }
     }
     .enlarge-btn:hover { background: var(--accent); color: #fff; }
+    .enlarge-btn:hover .enlarge-ico { stroke: #fff; }
+    .enlarge-ico {
+      display: inline-block;
+      vertical-align: -2px;
+      margin-right: 5px;
+      stroke: var(--accent);
+      fill: none;
+    }
 
     /* ── Modal dialog (sizes to its content; never overflows the viewport) ── */
     dialog.frame-modal {
@@ -335,6 +388,10 @@
       max-width: 95vw;
       max-height: 92vh;
       overflow: auto;
+      /* Restore the centred dialog position: the global `* { margin: 0 }`
+         reset kills the browser's default <dialog> centering, which left the
+         enlarged frame clipped against the viewport edge. */
+      margin: auto;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
     dialog.frame-modal::backdrop {
@@ -352,11 +409,21 @@
        screen gets the dialog's full width instead of fighting notes for it. */
     .modal-frame.modal-wide .modal-content { flex-direction: column; }
     .modal-frame.modal-wide .modal-notes { max-width: 920px; }
-    /* The enlarged screen shrink-wraps its art (no fixed device width). */
+    /* ── Enlarged screen: TRUE device proportions, scaled as one unit ──
+       The scaler wraps the device and carries a uniform transform: scale(s)
+       (s set per-frame by the modal script from the viewport). Its width/height
+       are set inline to the SCALED footprint so the dialog reserves the right
+       space (a transformed element keeps its untransformed layout box, which
+       would otherwise overflow). The device itself holds its fixed logical
+       viewport — same fixed width/min-height as the inline .device-frame — so
+       the bezel + chrome scale with the ASCII and the aspect ratio is exact. */
+    .modal-device-scaler {
+      flex: 0 0 auto;
+      transform-origin: top left;
+      overflow: hidden;
+    }
     .modal-device {
       flex: 0 0 auto;
-      width: auto;
-      max-width: 100%;
       background: var(--device-frame-bg);
       border: 2px solid #1A1A1A;
       border-radius: 28px;
@@ -365,21 +432,24 @@
       overflow: hidden;
       box-shadow: 0 6px 20px rgba(0,0,0,0.12);
     }
-    .modal-device.device-phone   { border-radius: 34px; padding-top: 30px; }
-    .modal-device.device-tablet  { border-radius: 22px; padding-top: 28px; }
-    .modal-device.device-desktop { border-radius: 10px; padding-top: 46px; }
+    /* Same fixed logical viewports as the inline canvas frame, so the modal
+       device holds its true shape instead of shrink-wrapping the ASCII. */
+    .modal-device.device-phone   { width: 390px;  min-height: 844px;  border-radius: 34px; padding-top: 30px; }
+    .modal-device.device-tablet  { width: 768px;  min-height: 1024px; border-radius: 22px; padding-top: 28px; }
+    .modal-device.device-desktop { width: 1280px; min-height: 800px;  border-radius: 10px; padding-top: 46px; }
     .modal-device[class*="device-custom-"] { border-radius: 10px; padding-top: 46px; }
     .modal-device pre {
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       font-size: var(--ascii-fs, 14px);
       line-height: 1.25;
       white-space: pre;
-      overflow: auto;
-      max-height: 76vh;
+      overflow: visible;
       color: var(--text);
+      flex: 0 0 auto;
     }
     .modal-notes { flex: 1; }
     .modal-notes h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .modal-share { margin-bottom: 14px; }
     .modal-notes p.scene { font-size: 13px; color: var(--text-muted); font-style: italic; margin-bottom: 12px; }
     .modal-notes ul { padding-left: 18px; }
     .modal-notes li { font-size: 14px; margin-bottom: 8px; color: var(--text); line-height: 1.5; }
@@ -540,7 +610,6 @@
       .device-frame { flex: none; width: 100%; min-height: auto; }
       .notes { flex: none; }
       .modal-content { flex-direction: column; }
-      .modal-device { flex: none; width: 100%; }
       dialog.frame-modal { padding: 20px; width: 95vw; }
     }
   </style>
@@ -750,6 +819,36 @@
       nextBtn.disabled = (currentIdx === frames.length - 1);
     }
 
+    /* Scale the active enlarged device as ONE unit (bezel + chrome + ASCII)
+       to fit the viewport while preserving its true logical aspect ratio.
+       The device keeps its fixed logical width/min-height (CSS); we read its
+       natural box, compute a uniform scale that fits the available space, and
+       pin the scaler's layout box to the SCALED footprint so the dialog
+       reserves the right space and never overflows. */
+    function scaleActiveFrame() {
+      var frame = frames[currentIdx];
+      if (!frame) return;
+      var scaler = frame.querySelector('.modal-device-scaler');
+      var device = frame.querySelector('.modal-device');
+      if (!scaler || !device) return;
+      /* Measure at natural (unscaled) size. */
+      scaler.style.transform = 'none';
+      scaler.style.width = '';
+      scaler.style.height = '';
+      var natW = device.offsetWidth;
+      var natH = device.offsetHeight;
+      if (!natW || !natH) return;
+      var isWide = frame.classList.contains('modal-wide');
+      /* Budget: dialog padding + notes (column for wide, row for phone) +
+         modal nav. Conservative caps keep the unit inside the dialog. */
+      var availW = Math.max(220, (window.innerWidth  * 0.95) - 60 - (isWide ? 0 : 320));
+      var availH = Math.max(220, (window.innerHeight * 0.92) - 60 - (isWide ? 220 : 90));
+      var scale = Math.min(1, availW / natW, availH / natH);
+      scaler.style.transform = 'scale(' + scale + ')';
+      scaler.style.width  = (natW * scale) + 'px';
+      scaler.style.height = (natH * scale) + 'px';
+    }
+
     function showFrame(idx) {
       frames.forEach(function(f) { f.classList.remove('active'); });
       if (frames.length === 0) return;
@@ -762,11 +861,15 @@
         history.replaceState(null, '', '#frame-' + key);
       }
       updateNavState();
+      scaleActiveFrame();
     }
 
     function openModal(idx) {
       showFrame(idx);
       modal.showModal();
+      /* showFrame() scaled while the dialog was still closed (offsetWidth 0);
+         re-fit now that it is laid out. */
+      scaleActiveFrame();
     }
 
     function closeModal() {
@@ -789,9 +892,60 @@
       });
     });
 
+    /* ── Copy-link buttons (inline footer AND modal) ──
+       Copies a deep link to this frame. The hash-on-load logic already opens
+       the modal at #frame-{key}; this only adds the copy action. */
+    function flashCopied(btn) {
+      var label = btn.querySelector('.copy-label');
+      if (!label) return;
+      var original = label.textContent;
+      label.textContent = 'Copied ✓';
+      setTimeout(function() { label.textContent = original; }, 1500);
+    }
+    function copyFrameLink(btn) {
+      var key = btn.dataset.frameKey;
+      if (!key) return;
+      var url = location.origin + location.pathname + location.search + '#frame-' + key;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(
+          function() { flashCopied(btn); },
+          function() { fallbackCopy(url, btn); }
+        );
+      } else {
+        fallbackCopy(url, btn);
+      }
+    }
+    /* Minimal fallback for non-secure contexts (no navigator.clipboard). */
+    function fallbackCopy(text, btn) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) { flashCopied(btn); return; }
+      } catch (e) { /* fall through to prompt */ }
+      window.prompt('Copy this link:', text);
+    }
+    document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        copyFrameLink(btn);
+      });
+    });
+
     /* ── Prev / next ── */
     prevBtn.addEventListener('click', function() { showFrame(currentIdx - 1); });
     nextBtn.addEventListener('click', function() { showFrame(currentIdx + 1); });
+
+    /* ── Re-fit the enlarged device on viewport resize ── */
+    window.addEventListener('resize', function() {
+      if (modal.open) scaleActiveFrame();
+    });
 
     /* ── Close ── */
     closeBtn.addEventListener('click', closeModal);

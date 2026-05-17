@@ -447,9 +447,11 @@ function buildDeviceCustomStyles(flows) {
   let css = '<style>\n';
   for (const [, { w, h }] of customs) {
     const cls = `device-custom-${w}x${h}`;
-    // Canvas screen = exact custom size, height as a screen-shape floor.
-    // The modal screen shrink-wraps its art (shared CSS) — no per-size rule.
+    // Canvas screen = exact custom size, height as a screen-shape floor. The
+    // modal screen now holds the SAME logical viewport (scaled as one unit by
+    // the modal script) so custom frames keep their true ratio when enlarged.
     css += `  .device-frame.${cls} { width: ${w}px; min-height: ${h}px; }\n`;
+    css += `  .modal-device.${cls} { width: ${w}px; min-height: ${h}px; }\n`;
   }
   css += '</style>';
   return css;
@@ -467,8 +469,6 @@ const CHAR_RATIO = 0.62;       // monospace advance width ÷ font-size
 const FRAME_PAD_BORDER = 40;   // device-frame: padding 2×18 + bezel border 2×2 (border-box)
 const CANVAS_FS_MIN = 7;       // floor: pathologically wide art stays legible
 const CANVAS_FS_MAX = 22;      // ceiling: do not grotesquely zoom tiny art
-const MODAL_FS_MIN = 8;
-const MODAL_FS_MAX = 26;
 
 // Display width of one code point. Emoji and CJK occupy ~2 monospace cells but
 // are 1 code point — counting them as 1 skews alignment and the fit math, so
@@ -515,13 +515,39 @@ function canvasFontSize(ascii, deviceWidth) {
   return Math.max(CANVAS_FS_MIN, Math.min(CANVAS_FS_MAX, raw));
 }
 
-// Phone art is small on the canvas, so the modal enlarges it. Wider devices
-// are already large at their fitted size; blowing them up only overflows the
-// dialog, so the modal keeps their canvas size and scrolls if the viewport is
-// narrow (the screen shrink-wraps its art via CSS — no fixed device scaling).
-function modalFontSize(canvasFs, isPhone) {
-  if (!isPhone) return canvasFs;
-  return Math.max(MODAL_FS_MIN, Math.min(MODAL_FS_MAX, Math.round(canvasFs * 1.7)));
+// v1.2.0: the modal device holds its TRUE fixed logical viewport (same as the
+// canvas frame) and is scaled as one unit by the modal script to fit the
+// screen. The ASCII must therefore fit that fixed device width exactly like
+// the canvas does, so the modal uses the canvas fit font size directly — the
+// uniform CSS scale provides the on-screen enlargement. (The pre-v1.2 phone
+// ×1.7 blow-up only "worked" with the old shrink-wrap modal; against a fixed
+// 390px screen it made the art wider than the screen and clipped.)
+function modalFontSize(canvasFs) {
+  return canvasFs;
+}
+
+// ── Shared control markup ──────────────────────────────────────────────────
+// Clearer enlarge affordance: a corner-expand / fullscreen glyph (monochrome,
+// neutral — strokes inherit the control colour). Visible "enlarge" text stays
+// so the control is not icon-only for screen readers.
+const ENLARGE_ICON =
+  '<svg class="enlarge-ico" width="13" height="13" viewBox="0 0 16 16" ' +
+  'aria-hidden="true" stroke-width="1.6" stroke-linecap="round" ' +
+  'stroke-linejoin="round"><path d="M6 2H2v4M14 6V2h-4M10 14h4v-4M2 ' +
+  '10v4h4"/></svg>';
+
+// Copy-link button — emitted in BOTH the inline footer and each modal frame.
+// Carries the frame key; the template script copies
+// origin+pathname+search+#frame-{key}. Tooltip explains the use case and is
+// revealed on hover AND keyboard focus (CSS, reduced-motion safe).
+const COPY_TIP_TEXT =
+  'Copies a link straight to this frame — paste it anywhere to start a discussion.';
+function copyLinkButton(key) {
+  return `<button class="copy-link-btn" data-frame-key="${key}" type="button" ` +
+    `aria-label="Copy link to frame ${key}">` +
+    `<span class="copy-label">Copy link</span>` +
+    `<span class="copy-tip" role="tooltip">${escapeHtml(COPY_TIP_TEXT)}</span>` +
+    `</button>`;
 }
 
 // ── HTML generators ────────────────────────────────────────────────────────
@@ -571,8 +597,8 @@ function generateFlowSections(flows) {
       html += `          ${mdScriptBlock(notesTargetId, frame.notesMarkdown)}\n`;
       html += `        </div>\n`;
       html += `        <div class="frame-footer">\n`;
-      html += `          <a class="frame-anchor" href="#${anchorId}">#${anchorId}</a>\n`;
-      html += `          <button class="enlarge-btn" data-frame-key="${key}" aria-label="Enlarge frame ${key}">&#10610; enlarge</button>\n`;
+      html += `          ${copyLinkButton(key)}\n`;
+      html += `          <button class="enlarge-btn" data-frame-key="${key}" aria-label="Enlarge frame ${key}">${ENLARGE_ICON} enlarge</button>\n`;
       html += `        </div>\n`;
       html += `      </div>\n`;
       html += `    </article>\n`;
@@ -590,9 +616,10 @@ function generateModalFrames(flows) {
       const key = frame.key;
       const dev = resolveDevice(frame.device, key);
       const isPhone = dev.cssClass === 'device-phone';
-      const fsModal = modalFontSize(canvasFontSize(frame.ascii, dev.width), isPhone);
-      // The enlarged screen shrink-wraps its art via CSS. The old inline
-      // 1.5× width overflowed the dialog for desktop/custom frames — gone.
+      const fsModal = modalFontSize(canvasFontSize(frame.ascii, dev.width));
+      // The enlarged device holds its true logical viewport (fixed via the
+      // CSS device class) and is scaled as one unit by the modal script to
+      // fit the dialog — no inline device sizing needed here.
       const modalDeviceStyle = '';
 
       // Modal uses unique target IDs (prefixed "modal-") so they don't collide with canvas IDs
@@ -601,9 +628,10 @@ function generateModalFrames(flows) {
 
       html += `<div class="modal-frame${isPhone ? '' : ' modal-wide'}" data-key="${key}">\n`;
       html += `  <div class="modal-content">\n`;
-      html += `    <div class="modal-device ${dev.cssClass}"${modalDeviceStyle}><pre style="--ascii-fs:${fsModal}px">${escapeHtml(frame.ascii)}</pre></div>\n`;
+      html += `    <div class="modal-device-scaler"><div class="modal-device ${dev.cssClass}"${modalDeviceStyle}><pre style="--ascii-fs:${fsModal}px">${escapeHtml(frame.ascii)}</pre></div></div>\n`;
       html += `    <div class="modal-notes">\n`;
       html += `      <h2>${escapeHtml(frame.name)}</h2>\n`;
+      html += `      <div class="modal-share">${copyLinkButton(key)}</div>\n`;
       if (frame.scene) {
         html += `      <p class="scene md-content" id="${modalSceneTargetId}"></p>\n`;
         html += `      ${mdScriptBlock(modalSceneTargetId, frame.scene)}\n`;

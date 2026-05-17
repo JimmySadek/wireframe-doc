@@ -5,6 +5,45 @@ All notable changes to the `wireframe-doc` skill are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-05-17
+
+Modal review polish: enlarged frames now read as true device screens, and
+every frame carries a one-click "Copy link" share affordance. Still
+zero-dependency, single-file, offline-safe; the v1.1.0 device-screen chrome
+contract is preserved unchanged.
+
+### Fixed
+
+- **Enlarge-modal proportions.** Tapping enlarge previously shrink-wrapped the
+  bezel around the ASCII (a phone became a wide ASCII-shaped box). The modal
+  device now holds its true logical viewport (phone 390×844, tablet 768×1024,
+  desktop 1280×800, custom WxH at its injected ratio — same fixed sizes as the
+  inline canvas frame) and is scaled as a single unit (bezel + chrome + ASCII
+  together) via a uniform CSS `transform: scale(...)` computed per-frame from
+  the viewport, with `transform-origin: top center`. Aspect ratio is exact and
+  the v1.1.0 chrome (bezel, notch/camera dot, browser-chrome bar + window dots,
+  corner radii) stays intact at the scaled size. Re-fits on viewport resize;
+  small-screen (≤768px) modal display remains sane.
+
+### Added
+
+- **Per-frame "Copy link" button + education tooltip.** The raw `#frame-{key}`
+  text link in the inline footer is replaced by a restrained "Copy link"
+  button (same neutral idiom as the enlarge control), emitted in BOTH the
+  inline footer and each modal frame, for every device type. Clicking copies
+  the deep link to that frame via `navigator.clipboard` (with a tiny
+  `execCommand`/`prompt` fallback for non-secure contexts) and flashes
+  "Copied ✓" for ~1.5s. A lightweight, reduced-motion-safe CSS tooltip
+  (revealed on hover AND keyboard focus) explains the use case. The existing
+  hash-on-load deep-link behaviour is unchanged.
+
+### Changed
+
+- **Clearer enlarge icon.** The enlarge button now uses a monochrome
+  corner-expand SVG glyph (stroke inherits the control colour) instead of the
+  prior `&#10610;` arrows mark, keeping the visible "enlarge" label for screen
+  readers. Neutral and low-fi — no decoration.
+
 ## [1.1.0] — 2026-05-16
 
 This release reshapes frames to read like real device screens: the HTML frame
