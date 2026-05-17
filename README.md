@@ -1,3 +1,5 @@
+![wireframe-doc — Markdown spec to HTML wireframes](assets/banner.jpg)
+
 [![Version](https://img.shields.io/badge/version-1.1.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
