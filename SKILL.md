@@ -3,7 +3,7 @@ name: wireframe-doc
 version: 1.2.0
 author: Jimmy Sadek <gamal.sadek@gmail.com>
 license: MIT
-description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII frames inside thin device-frame chrome, Mermaid flow diagrams, sticky-note style reviewer notes, and a Netflix-style horizontal canvas with tap-to-enlarge modal. Designed for asynchronous founder/team review BEFORE committing to UI design or Figma. Use this skill whenever the user wants to wireframe, mockup, sketch screens, or share screen flows for review — including phrases like "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user doesn't say the word "wireframe" explicitly — sketching screens, scaffolding a user flow, sharing frames with notes for async team review, and replacing heavy Figma exports with lightweight shareable URLs are all core use cases. Bundle is ~50-150 KB regardless of frame count.
+description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII frames inside thin device-frame chrome, Mermaid flow diagrams, sticky-note style reviewer notes, and a Netflix-style horizontal canvas with tap-to-enlarge modal. Designed for asynchronous founder/team review BEFORE committing to UI design or Figma. Use this skill whenever the user wants to wireframe, mockup, sketch screens, or share screen flows for review — including phrases like "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user doesn't say the word "wireframe" explicitly — sketching screens, scaffolding a user flow, sharing frames with notes for async team review, and replacing heavy Figma exports with lightweight shareable URLs are all core use cases. Bundle scales with frame count — ~50 KB small to ~215 KB for a large multi-flow deck (still far smaller than a 1–2 MB Figma export).
 metadata:
   short-description: Markdown-to-HTML wireframe review docs
   triggers:
@@ -31,7 +31,7 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 - **Pre-design product reviews** — founders need to see flow and intent before committing to a UI implementation. ASCII frames communicate structure without burning design time.
 - **Async team feedback on multi-flow user journeys** — share a URL, collect comments in a chat thread. No realtime coordination needed.
 - **Lightweight specs that double as input to next-stage UI generation** — structured frame notes and scene descriptions are clean input for a UI-generation agent.
-- **Replacing screenshot-heavy wireframe decks** — a 1–2 MB Figma export becomes a ~50–150 KB self-contained HTML. Faster to share, faster to load, version-controllable as plain text.
+- **Replacing screenshot-heavy wireframe decks** — a 1–2 MB Figma export becomes a ~50–215 KB self-contained HTML. Faster to share, faster to load, version-controllable as plain text.
 
 ## When NOT to use it
 

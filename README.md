@@ -9,9 +9,14 @@
 
 A Claude Code skill that turns a Markdown spec into a single self-contained HTML
 page of low-fidelity screen wireframes — ASCII frames in device chrome, a flow
-diagram, reviewer notes — that you share as one URL. 50–150 KB, no design tool,
-no export. Built for the messy moment before design: when you need cofounders
-or your team reacting to the screens in your head.
+diagram, reviewer notes — that you share as one URL. ~50 KB for a small deck,
+~215 KB for a large multi-flow one — no design tool, no export. Built for the
+messy moment before design: when you need cofounders or your team reacting to
+the screens in your head.
+
+![A rendered wireframe-doc deck — the tap-to-enlarge modal, showing a device-framed screen, reviewer notes, and the Copy link button](assets/sample.png)
+
+*A rendered deck — device-framed screens, flow diagram, and reviewer notes, shared as one URL. Every screen is authored as plain Markdown ASCII.*
 
 ## The problem
 
@@ -33,7 +38,7 @@ reacted to the flow.
 |---|---|---|
 | Stage | Before design — deciding the flow | During design — making it real |
 | Fidelity | Low-fi, intent over polish | Pixel-perfect |
-| Output | One ~100 KB URL | ~1.8 MB file / export |
+| Output | One ~50–215 KB URL | ~1.8 MB file / export |
 | Audience | Cofounders, team, async reviewers | Designers, stakeholders |
 
 Use wireframe-doc to decide what to build. Switch to a real design tool to make it look right.

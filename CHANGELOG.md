@@ -69,6 +69,12 @@ contract is preserved unchanged.
   corner-expand SVG glyph (stroke inherits the control colour) instead of the
   prior `&#10610;` arrows mark, keeping the visible "enlarge" label for screen
   readers. Neutral and low-fi — no decoration.
+- **Accurate output-size docs + a real-output screenshot.** README/SKILL.md
+  size claims now state the measured range (~50 KB small to ~215 KB for a
+  large multi-flow deck — output scales with frame count) instead of the prior
+  fixed "~50–150 KB regardless of frame count"; the Figma-vs contrast is kept.
+  Added `assets/sample.png` (rendered bundled `examples/dashboard/` deck,
+  enlarge modal open) embedded in the README hero.
 
 ## [1.1.0] — 2026-05-16
 
