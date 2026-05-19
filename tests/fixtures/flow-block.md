@@ -11,10 +11,22 @@ default_device: phone
 
 ## Set the scene
 
-Exercises the flow-level decision-flow cards: two NAMED cards in one flow
-rendering as separate titled panels in document order, one card with a
-#frame-{key} leaf link, and one bare UNTITLED `flow` block (the no-title
-fallback). Branch glyphs and a down-arrow are preserved verbatim.
+Exercises positional (meta + flow) decision-flow card placement: one
+META-level card (authored before the first "## {Flow}") rendered ONCE before
+all flow sections; two NAMED flow-scoped cards plus one bare UNTITLED card
+under "## Checkout flow" rendering as separate titled panels in document
+order; a #frame-{key} leaf link; collapsible markup on titled cards; and a
+misplaced `flow` fence inside a frame that emits a one-line stderr Warning
+(non-fatal). Branch glyphs and a down-arrow are preserved verbatim.
+
+```flow Deck-level routing
+app opened from any entry point
+            │
+            ▼
+  Signed in on this device?
+  ├─ yes → straight to the cart
+  └─ no  → sign-in wall first
+```
 
 ## Checkout flow
 
@@ -73,6 +85,12 @@ Scene: Card entry screen.
 │  [ Card #  ] │
 │  [ Pay ]     │
 └──────────────┘
+```
+
+```flow Misplaced — inside a frame
+this flow fence sits INSIDE a frame and cannot attach
+it must emit a one-line stderr Warning and be skipped
+the render must still complete and exit 0
 ```
 
 **Notes:**

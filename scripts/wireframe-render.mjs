@@ -120,6 +120,12 @@ function parseBody(body, defaultDevice) {
   let openQLines = [];
   let streamMermaid = '';
   let streamMermaidLineStart = -1; // line index of opening ``` inside the mermaid block
+  // Deck-level decision-flow cards: `flow` blocks authored at the META level
+  // (before the first "## {Flow}", alongside scene / open questions / Stream
+  // → screens). Positionally scoped — rendered ONCE before all flow sections.
+  // Parallel to streamMermaid/sceneLines; same { title, rawText } shape as
+  // flow-scoped cards.
+  const metaFlowCards = []; // [ { title, rawText } ]
   const flows = []; // { title, flowCards: [ { title, rawText } ], frames: [ { name, key, device, scene, ascii, notes, lineNum } ] }
   let currentFlow = null;
   let currentFrame = null;
@@ -178,6 +184,24 @@ function parseBody(body, defaultDevice) {
         // exactly like the ascii screen block (no Markdown, no Mermaid).
         // Multiple cards per flow are kept in document order.
         currentFlow.flowCards.push({ title: fenceTitle, rawText: fenceBuf.join('\n') });
+      } else if (fenceType === 'flow' && !currentFlow && !currentFrame) {
+        // Meta-level decision-flow card: a `flow` block authored BEFORE the
+        // first "## {Flow}" (alongside scene / open questions / Stream →
+        // screens). Positionally scoped to the whole deck — rendered ONCE
+        // before all flow sections. Same { title, rawText } shape and
+        // verbatim-body fidelity as a flow-scoped card; many allowed, kept
+        // in document order.
+        metaFlowCards.push({ title: fenceTitle, rawText: fenceBuf.join('\n') });
+      } else if (fenceType === 'flow') {
+        // A `flow` fence that cannot attach (e.g. inside a frame). Positional
+        // scoping has no slot for it — warn (same style as the other
+        // stderr warnings in this file) and continue. Non-fatal: the render
+        // still completes and exits 0. Replaces the prior silent drop.
+        process.stderr.write(
+          `Warning (line ${fenceStartLine + 1}): \`flow\` block cannot be placed here ` +
+          `(inside a frame). A flow card must be at the meta level (before the first ` +
+          `"## {Flow}") or under a "## {Flow}" heading before its first "### Frame:". Skipped.\n`
+        );
       } else if (fenceType === 'ascii' && currentFrame) {
         currentFrame.ascii = fenceBuf.join('\n');
       }
@@ -438,7 +462,7 @@ function parseBody(body, defaultDevice) {
     streamMermaid = substituted;
   }
 
-  return { sceneLines, openQLines, streamMermaid, flows };
+  return { sceneLines, openQLines, streamMermaid, metaFlowCards, flows };
 }
 
 function escapeRegex(str) {
@@ -583,6 +607,38 @@ function linkifyFlowBlock(rawText) {
 }
 
 // ── HTML generators ────────────────────────────────────────────────────────
+// One logic-card panel — shared by deck-level (meta) and flow-scoped cards so
+// the markup is byte-identical at both placements. NOT a screen: no device
+// chrome. Verbatim body in a monospace <pre>; an optional title from the
+// fence info string (omitted when untitled). The title doubles as the
+// collapse toggle via <details>/<summary> (same mechanism as scene / open
+// questions); an untitled card stays a plain always-open panel.
+function logicCardHtml(card, indent) {
+  const p = indent;
+  let html = '';
+  if (card.title) {
+    html += `${p}<details class="logic-card" open>\n`;
+    html += `${p}  <summary class="logic-card-title">${escapeHtml(card.title)}</summary>\n`;
+    html += `${p}  <pre>${linkifyFlowBlock(card.rawText)}</pre>\n`;
+    html += `${p}</details>\n`;
+  } else {
+    html += `${p}<div class="logic-card">\n`;
+    html += `${p}  <pre>${linkifyFlowBlock(card.rawText)}</pre>\n`;
+    html += `${p}</div>\n`;
+  }
+  return html;
+}
+
+// Deck-level logic cards: positionally scoped to the whole deck (authored at
+// the meta level). Rendered ONCE, before all flow sections, in document order.
+function generateMetaFlowCards(metaFlowCards) {
+  let html = '';
+  for (const card of metaFlowCards) {
+    html += logicCardHtml(card, '  ');
+  }
+  return html;
+}
+
 function generateFlowSections(flows) {
   let html = '';
   for (const flow of flows) {
@@ -594,12 +650,7 @@ function generateFlowSections(flows) {
     // in a monospace pre; an optional title heading from the fence info
     // string (omitted entirely when the card is untitled).
     for (const card of flow.flowCards) {
-      html += `  <div class="logic-card">\n`;
-      if (card.title) {
-        html += `    <div class="logic-card-title">${escapeHtml(card.title)}</div>\n`;
-      }
-      html += `    <pre>${linkifyFlowBlock(card.rawText)}</pre>\n`;
-      html += `  </div>\n`;
+      html += logicCardHtml(card, '  ');
     }
     html += `  <div class="frame-strip">\n`;
     for (const frame of flow.frames) {
@@ -747,7 +798,7 @@ function main() {
   resolveDevice(defaultDevice);
 
   // Parse body
-  const { sceneLines, openQLines, streamMermaid, flows } = parseBody(body, defaultDevice);
+  const { sceneLines, openQLines, streamMermaid, metaFlowCards, flows } = parseBody(body, defaultDevice);
 
   // Count frames
   const totalFrames = flows.reduce((acc, f) => acc + f.frames.length, 0);
@@ -782,6 +833,7 @@ function main() {
     : '_No open questions listed._';
   const openQMdScript = mdScriptBlock('md-open-questions', openQMarkdown);
 
+  const metaFlowCardsHtml = generateMetaFlowCards(metaFlowCards);
   const flowSectionsHtml = generateFlowSections(flows);
   const modalFramesHtml = generateModalFrames(flows);
 
@@ -799,6 +851,7 @@ function main() {
     .replace('{{SCENE_MD_SCRIPT}}', sceneMdScript)
     .replace('{{OPEN_QUESTIONS_MD_SCRIPT}}', openQMdScript)
     .replace('{{STREAM_MERMAID}}', streamMermaid)
+    .replace('{{META_FLOW_CARDS_HTML}}', metaFlowCardsHtml)
     .replace('{{FLOW_SECTIONS_HTML}}', flowSectionsHtml)
     .replace('{{MODAL_FRAMES_HTML}}', modalFramesHtml)
     .replace('{{CUSTOM_DEVICE_STYLES}}', customDeviceStyles)

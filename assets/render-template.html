@@ -152,6 +152,14 @@
       margin-bottom: 16px;
       overflow-x: auto;
     }
+    /* Titled logic cards collapse via the SAME <details>/<summary> mechanism
+       as Set the scene / Open questions / Stream → screens — the card title
+       is the toggle. Untitled cards stay plain always-open <div> panels. */
+    details.logic-card { padding: 0; overflow-x: visible; }
+    details.logic-card > pre {
+      padding: 0 20px 16px;
+      overflow-x: auto;
+    }
     .logic-card-title {
       font-size: 13px;
       font-weight: 600;
@@ -160,6 +168,20 @@
       letter-spacing: 0.04em;
       margin-bottom: 10px;
     }
+    summary.logic-card-title {
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      margin-bottom: 0;
+    }
+    summary.logic-card-title::-webkit-details-marker { display: none; }
+    summary.logic-card-title::before {
+      content: "▶ ";
+      display: inline-block;
+      transition: transform 0.15s;
+    }
+    details.logic-card[open] summary.logic-card-title::before { transform: rotate(90deg); }
     .logic-card pre {
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       font-size: 13px;
@@ -656,14 +678,16 @@
     @media (prefers-reduced-motion: no-preference) {
       details.scene-block summary::before,
       details.questions-block summary::before,
-      details.diagram-block summary::before {
+      details.diagram-block summary::before,
+      details.logic-card summary.logic-card-title::before {
         transition: transform 0.15s;
       }
     }
     /* Default: instant (reduced motion friendly) */
     details.scene-block summary::before,
     details.questions-block summary::before,
-    details.diagram-block summary::before {
+    details.diagram-block summary::before,
+    details.logic-card summary.logic-card-title::before {
       transition: none;
     }
 
@@ -757,6 +781,10 @@
       <p class="diagram-caption">Stream → screens flow</p>
     </div>
   </details>
+
+  <!-- ── Deck-level decision-flow cards (positionally scoped: authored at
+       the meta level, rendered once before all flow sections) ── -->
+  {{META_FLOW_CARDS_HTML}}
 
   <!-- ── Flow sections ── -->
   {{FLOW_SECTIONS_HTML}}

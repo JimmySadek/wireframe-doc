@@ -65,7 +65,7 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 | ` ```ascii ` block | Screen *contents* (monospace, whitespace preserved). The device frame is the screen border — **don't draw an outer box**; internal panels/tables are fine. Emoji ≈ 2 columns. |
 | `**Notes:**` + content | Reviewer notes — full Markdown supported (bullets, paragraphs, headings, code, blockquotes) |
 | ` ```mermaid ` block under `## Stream → screens` | Flow diagram. Use frame keys as node IDs — renderer substitutes frame headings as labels. Omit to auto-generate a linear graph. |
-| ` ```flow {Card title} ` block under a `## {Flow name}` heading, before its first `### Frame:` | Flow-level **decision-flow** card — the *decided logic* (conditions/rules that decide what a user sees). Text after `flow` on the fence line is the card title (optional → untitled card); the BODY is verbatim monospace. Complements the Mermaid screen-map (does not replace it); NOT a screen, NO device chrome, Markdown does NOT render. **Many** named cards allowed per flow — they render as separate titled panels in document order. The literal token `#frame-{key}` becomes an anchor to that frame — OPTIONAL, sparse, on decided outcomes only. |
+| ` ```flow {Card title} ` block — **placement = scope** | Flow-level **decision-flow** card — the *decided logic* (conditions/rules that decide what a user sees). **Positionally scoped:** authored at the **meta level** (before the first `## {Flow}`, alongside scene / open questions / Stream → screens) → a **deck-level** card rendered ONCE before all flows (use for global entry/identity/routing logic); authored under a `## {Flow}` heading (before its first `### Frame:`) → that **flow's** card at its head (flow-local logic). Text after `flow` is the card title (optional → untitled card); the BODY is verbatim monospace. Complements the Mermaid screen-map (does not replace it); NOT a screen, NO device chrome, Markdown does NOT render. **Many** named cards allowed at **both** levels — separate titled panels in document order. **Titled cards are collapsible** (click the title — same toggle as the context sections). The literal token `#frame-{key}` becomes an anchor to that frame — OPTIONAL, sparse, on decided outcomes only. A `flow` fence that cannot attach (e.g. inside a frame) prints a one-line stderr Warning and is skipped (render still exits 0). |
 
 **YAML frontmatter fields:**
 - `title` — page title + header h1
@@ -167,17 +167,31 @@ For **every** frame, exploit rendered Markdown in the notes:
 
 ### 6. Decision-flow cards — the decided-logic layer (optional)
 
-A ` ```flow {Card title} ` block placed under a `## {Flow name}` heading,
-**before** that flow's first `### Frame:`, renders as a plain bordered "logic
-card" at the head of the flow — above the screens it governs. It **complements
-the Mermaid screen-map, it does not replace it**: Mermaid maps *which screens
-connect*; this expresses the *conditions/rules that decide what a user sees*.
+A ` ```flow {Card title} ` block renders as a plain bordered "logic card" —
+the *decided logic*. It **complements the Mermaid screen-map, it does not
+replace it**: Mermaid maps *which screens connect*; this expresses the
+*conditions/rules that decide what a user sees*.
+
+**Placement determines scope** (positional, like the rest of the doc):
+
+- **Meta level** — authored *before the first `## {Flow}`*, alongside
+  Set the scene / Open questions / Stream → screens → a **deck-level** card,
+  rendered ONCE before all flow sections, governing the whole deck. Put
+  **global entry / identity / routing** logic here (it stays visible no
+  matter which flow the reader scrolls to).
+- **Under a `## {Flow}` heading** — *before that flow's first `### Frame:`* →
+  a **flow-scoped** card at the head of that flow, above the screens it
+  governs. Put **flow-local** logic here.
+
 The text after `flow` on the fence line is the **card title** (optional — a
 bare ` ```flow ` fence renders as an untitled card). You may add **many** named
-cards under one flow — they render as separate titled panels in document order
-(split distinct decisions into separate cards). Verbatim monospace — Markdown
-does NOT render here (like the screen block); it is NOT a screen, so no device
-chrome. The body is never consumed for the title.
+cards at **both** levels — they render as separate titled panels in document
+order (split distinct decisions into separate cards). **Titled cards are
+collapsible** — the title is the toggle, the same mechanism as the context
+sections. Verbatim monospace — Markdown does NOT render here (like the screen
+block); it is NOT a screen, so no device chrome. The body is never consumed
+for the title. A `flow` fence that cannot attach (e.g. inside a frame) prints
+a one-line stderr Warning and is skipped — the render still exits 0.
 
 The six recurring moves (compose in this order):
 

@@ -14,32 +14,48 @@ contract and every existing spec's output are unchanged.
 
 ### Added
 
-- **Flow-level ` ```flow {Card title} ` decision-flow cards.** Fenced
-  ` ```flow ` blocks placed under a `## {Flow name}` heading, before that
-  flow's first `### Frame:`, render as plain neutral bordered "logic cards"
-  at the HEAD of the flow section, above the screens they govern. Where the
-  Mermaid `## Stream → screens` diagram maps *which screens connect*, these
-  cards express the *conditions/rules that decide what a user sees* (fan-in
-  entry, down-arrow progression, decision/question lines, binary branches,
-  indented sub-options, parenthetical asides). The text after `flow` on the
-  fence line is the card **title** (optional — a bare ` ```flow ` fence
-  renders as an untitled card; the title is read from the fence info string,
-  never consumed from the body). **Multiple named cards per flow** are
-  supported and render as separate titled panels in document order. A card
-  is **not a screen** — no device bezel/status-strip/browser-chrome — and
-  its body is rendered **verbatim** in monospace at the same fidelity as the
+- **` ```flow {Card title} ` decision-flow cards — placement = scope.**
+  Fenced ` ```flow ` blocks render as plain neutral bordered "logic cards"
+  expressing the *decided logic*. Where the Mermaid `## Stream → screens`
+  diagram maps *which screens connect*, these cards express the
+  *conditions/rules that decide what a user sees* (fan-in entry, down-arrow
+  progression, decision/question lines, binary branches, indented
+  sub-options, parenthetical asides). **A card's placement determines its
+  scope, positionally — like the rest of the doc:** a `flow` block at the
+  **meta level** (before the first `## {Flow name}`, alongside Set the scene
+  / Open questions / Stream → screens) is a **deck-level** card, rendered
+  ONCE before all flow sections, governing the whole deck (for global
+  entry/identity/routing logic); a `flow` block under a `## {Flow name}`
+  heading, before that flow's first `### Frame:`, is a **flow-scoped** card
+  at the HEAD of that flow section, above the screens it governs (for
+  flow-local logic). The text after `flow` on the fence line is the card
+  **title** (optional — a bare ` ```flow ` fence renders as an untitled
+  card; the title is read from the fence info string, never consumed from
+  the body). **Multiple named cards are supported at BOTH levels** and
+  render as separate titled panels in document order. **Titled cards are
+  collapsible** — the card title is the toggle, reusing the exact
+  `<details>`/`<summary>` mechanism the Set the scene / Open questions /
+  Stream → screens context sections already use (no new collapse machinery,
+  no new colors); untitled cards stay plain always-open panels. A card is
+  **not a screen** — no device bezel/status-strip/browser-chrome — and its
+  body is rendered **verbatim** in monospace at the same fidelity as the
   ` ```ascii ` screen block (Markdown, marked.js, DOMPurify and Mermaid do
   NOT touch it; whitespace and box-drawing/branch/arrow glyphs are preserved
   exactly). The literal token `#frame-{key}` is linkified to an anchor
   targeting that frame's existing per-frame anchor — optional, and (by
   documented authoring discipline) sparse and only on decided
-  outcomes/leaves, never a node-per-screen. SKILL.md gains a cheatsheet row
-  and a craft-system authoring subsection; `assets/spec-template.md` (two
-  named cards) and `examples/multi-flow/poc.md` (named cards) gain
-  copy-ready examples; `tests/fixtures/flow-block.md` is a new verification
-  fixture (named cards in order + untitled fallback + leaf link). Specs
-  without a ` ```flow ` block render byte-identically (the only template
-  change is a static `.logic-card` / `.logic-card-title` CSS rule).
+  outcomes/leaves, never a node-per-screen. A `flow` fence that cannot
+  attach (e.g. inside a frame) emits a one-line stderr Warning and is
+  skipped — the render still exits 0 (replaces the prior silent drop).
+  SKILL.md gains a cheatsheet row and a craft-system authoring subsection;
+  `assets/spec-template.md` (meta-level + flow-scoped cards) and
+  `examples/multi-flow/poc.md` (a deck-level routing card + a flow-scoped
+  card) gain copy-ready examples; `tests/fixtures/flow-block.md` is a new
+  verification fixture (meta + flow placement, named cards in order,
+  untitled fallback, leaf link, collapsible markup, misplaced-fence
+  Warning). Specs without a ` ```flow ` block render byte-identically (the
+  only template change is the static `.logic-card` CSS plus the shared
+  collapse rule and the meta-card placeholder).
 
 ## [1.2.0] — 2026-05-17
 

@@ -72,22 +72,26 @@ graph LR
   landing --> otp --> main
 ```
 
-## Onboarding flow
-
 <!--
-OPTIONAL decision-flow cards. The fenced ```flow blocks just below are the
-"decided logic" for this flow — keep, edit, or delete them. They COMPLEMENT
-the Mermaid screen-map (Mermaid = which screens connect; this = the rules
-that decide what the user sees). The text after ```flow on the fence line is
-the card TITLE; the block BODY is rendered verbatim in monospace (Markdown
-does NOT render; it is NOT a screen — no device chrome). You may add MANY
-named cards under one flow heading (before the first ### Frame:) — they
-render as separate titled panels in document order. A bare ```flow fence
-with no title still renders (untitled card). The six moves: fan-in entry ·
-▼ progression · a question · ├─/└─ branches · indented sub-options ·
-(parenthetical aside) + free-prose tail. #frame-{key} becomes a link — keep
-links OPTIONAL, SPARSE, on decided OUTCOMES (leaves) only; never a node per
-screen (that just re-draws Mermaid).
+OPTIONAL decision-flow cards — the "decided logic". They COMPLEMENT the
+Mermaid screen-map (Mermaid = which screens connect; this = the rules that
+decide what the user sees). PLACEMENT = SCOPE, positionally:
+
+  • A ```flow block HERE (at the meta level, before the first ## {Flow},
+    alongside Set the scene / Open questions / Stream → screens) is a
+    DECK-LEVEL card — rendered ONCE before all flows. Put GLOBAL
+    entry/identity/routing logic here.
+  • A ```flow block under a ## {Flow} heading (before its first ### Frame:)
+    is a FLOW-SCOPED card at that flow's head. Put FLOW-LOCAL logic there.
+
+The text after ```flow is the card TITLE; the block BODY is rendered
+verbatim monospace (Markdown does NOT render; NOT a screen — no device
+chrome). MANY named cards allowed at BOTH levels — separate titled panels
+in document order. A bare ```flow fence renders untitled. Titled cards are
+COLLAPSIBLE (click the title). The six moves: fan-in entry · ▼ progression ·
+a question · ├─/└─ branches · indented sub-options · (parenthetical aside) +
+free-prose tail. #frame-{key} becomes a link — keep links OPTIONAL, SPARSE,
+on decided OUTCOMES (leaves) only; never a node per screen.
 -->
 
 ```flow Entry & identity
@@ -99,6 +103,8 @@ arrives via link or direct URL
   └─ no  → send code, collect it  → #frame-otp
            (resend allowed after 60s)
 ```
+
+## Onboarding flow
 
 ```flow Code retry policy
 code submitted

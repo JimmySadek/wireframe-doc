@@ -35,17 +35,18 @@ graph LR
   end
 ```
 
-## Mobile flow
-
-```flow First-launch routing
-first launch + no workspace yet
-            │
-            ▼
-  Workspace name entered?
-  ├─ no  → stay on onboarding, block CONTINUE
-  └─ yes → create workspace, go to inbox → #frame-task-list
-           (no email/account asked yet — deferred)
+```flow Surface routing (whole deck)
+app opened
+        │
+        ▼
+  What kind of device / who is this?
+  ├─ phone, no workspace → mobile onboarding → #frame-onboard
+  ├─ phone, has workspace → mobile inbox → #frame-task-list
+  └─ laptop, team lead    → desktop dashboard → #frame-dash-overview
+           (same account; the surface is chosen by device + role)
 ```
+
+## Mobile flow
 
 ```flow Empty-state vs returning
 inbox opened
