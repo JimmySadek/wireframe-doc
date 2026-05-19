@@ -818,31 +818,34 @@
   document.addEventListener('DOMContentLoaded', function() {
     if (typeof marked === 'undefined') {
       console.error('marked.js failed to load');
-      return;
+    } else {
+      marked.setOptions({
+        gfm: true,
+        breaks: false,
+        headerIds: false,
+        mangle: false
+      });
+      document.querySelectorAll('script[type="text/markdown"]').forEach(function(scriptEl) {
+        var targetId = scriptEl.dataset.target;
+        var targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+        var rawHtml = marked.parse(scriptEl.textContent.trim());
+        /* Sanitize before injection — XSS prevention (Blocker 2).
+           DOMPurify removes <script>, <iframe>, event handlers, etc.
+           Fallback: strip <script> tags if DOMPurify failed to load. */
+        var safeHtml = (typeof DOMPurify !== 'undefined')
+          ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } })
+          : rawHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+        targetEl.innerHTML = safeHtml;
+      });
     }
-    marked.setOptions({
-      gfm: true,
-      breaks: false,
-      headerIds: false,
-      mangle: false
-    });
-    document.querySelectorAll('script[type="text/markdown"]').forEach(function(scriptEl) {
-      var targetId = scriptEl.dataset.target;
-      var targetEl = document.getElementById(targetId);
-      if (!targetEl) return;
-      var rawHtml = marked.parse(scriptEl.textContent.trim());
-      /* Sanitize before injection — XSS prevention (Blocker 2).
-         DOMPurify removes <script>, <iframe>, event handlers, etc.
-         Fallback: strip <script> tags if DOMPurify failed to load. */
-      var safeHtml = (typeof DOMPurify !== 'undefined')
-        ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } })
-        : rawHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-      targetEl.innerHTML = safeHtml;
-    });
 
     /* ── CDN failure fallback (Important 10) ──
        After 2 seconds, if any .md-content div is still empty, inject
-       the raw markdown source as a <pre> block so content is never invisible. */
+       the raw markdown source as a <pre> block so content is never invisible.
+       Registered unconditionally (independent of the marked-missing branch
+       above) so it still arms when marked.js itself failed to load —
+       mirroring the standalone Mermaid CDN-failure fallback below. */
     setTimeout(function() {
       document.querySelectorAll('.md-content').forEach(function(el) {
         if (el.innerHTML.trim() === '') {

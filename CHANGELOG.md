@@ -103,6 +103,20 @@ literally byte-identical.
   the duplicated craft text (now COMPOSE-THE-SCREEN), and the version badge
   (→ 1.3.0) are updated to match.
 
+### Fixed
+
+- **marked.js CDN-failure raw-source fallback now arms even when marked.js
+  is absent.** The marked.js init early-returned when `marked` was
+  `undefined`, exiting before its 2-second raw-source fallback was
+  registered — so when marked.js failed to load from CDN, the documented
+  graceful degradation (markdown destination blocks showing their raw
+  source as a `<pre>`) never fired. The init is restructured so the
+  fallback `setTimeout` is registered unconditionally (the happy-path
+  render stays guarded by the `marked` check), mirroring the standalone
+  Mermaid CDN-failure fallback. Behavior now matches the README and the
+  CLAUDE.md "keep the 2-second raw-source fallback intact" invariant.
+  Template-only change; the renderer is untouched and no version bump.
+
 ## [1.2.0] — 2026-05-17
 
 Modal review polish: enlarged frames now read as true device screens, and
