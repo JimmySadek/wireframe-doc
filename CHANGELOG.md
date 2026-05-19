@@ -12,8 +12,10 @@ flow-level "decided logic" layer that complements — does not replace — the
 Mermaid screen-map), the operational **COMPOSE-THE-SCREEN** craft rule, and
 a **single canonical screenshot-verified example** replacing the prior four.
 Still zero-dependency, single-file, offline-safe; the renderer and the
-device-screen chrome contract are unchanged and every existing spec's output
-is byte-identical.
+device-screen chrome contract are unchanged; specs without a ` ```flow `
+block have no spec-conditional output change (functionally identical),
+though the shared template carries new static CSS so output is not
+literally byte-identical.
 
 ### Added
 
@@ -51,14 +53,19 @@ is byte-identical.
   attach (e.g. inside a frame) emits a one-line stderr Warning and is
   skipped — the render still exits 0 (replaces the prior silent drop).
   SKILL.md gains a cheatsheet row and a craft-system authoring subsection;
-  `assets/spec-template.md` (meta-level + flow-scoped cards) and
-  `examples/multi-flow/poc.md` (a deck-level routing card + a flow-scoped
-  card) gain copy-ready examples; `tests/fixtures/flow-block.md` is a new
+  `assets/spec-template.md` gains copy-ready meta-level + flow-scoped card
+  examples; `tests/fixtures/flow-block.md` is a new
   verification fixture (meta + flow placement, named cards in order,
   untitled fallback, leaf link, collapsible markup, misplaced-fence
-  Warning). Specs without a ` ```flow ` block render byte-identically (the
-  only template change is the static `.logic-card` CSS plus the shared
-  collapse rule and the meta-card placeholder).
+  Warning). The four prior examples (`minimal`, `multi-flow`, `dashboard`,
+  `stress-test`) are **removed** and replaced by a single canonical,
+  screenshot-verified `examples/showcase/poc.md` — FieldPilot job dispatch,
+  6 frames across 2 flows, exercising the full feature set including a
+  deck-level meta routing card and flow-scoped cards. Specs without a
+  ` ```flow ` block have no spec-conditional output change — the only
+  template delta is static (the `.logic-card` CSS, the shared collapse
+  rule, the meta-card placeholder) — so such specs render functionally
+  identically though not literally byte-identical.
 
 ### Changed
 
