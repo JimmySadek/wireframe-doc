@@ -1,6 +1,6 @@
 ![wireframe-doc — Markdown spec to HTML wireframes](assets/banner.jpg)
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 # wireframe-doc
@@ -14,11 +14,11 @@ diagram, reviewer notes — that you share as one URL. ~50 KB for a small deck,
 messy moment before design: when you need cofounders or your team reacting to
 the screens in your head.
 
-![A rendered wireframe-doc deck — device-framed screens with reviewer notes, the Copy link button, and the enlarge control](assets/sample.png)
+![The rendered FieldPilot showcase deck — a device-framed technician screen with reviewer notes, the Copy link button, and the enlarge control](assets/sample.png)
 
-*A rendered deck — device-framed screens, reviewer notes, shared as one URL. Every screen is authored as plain Markdown ASCII.*
+*The FieldPilot job-dispatch showcase — device-framed screens composed top→body→bottom, reviewer notes, shared as one URL. Every screen is authored as plain Markdown ASCII.*
 
-![Opening a shared frame link — the recipient lands on exactly that screen, badged "Shared frame", with notes and Copy link to start the discussion](assets/sample-shared.png)
+![Opening a shared FieldPilot frame link — the recipient lands on exactly that screen, badged "Shared frame", with notes and Copy link to start the discussion](assets/sample-shared.png)
 
 *Open a shared link and you land on the exact frame, marked so the recipient knows which screen is under discussion.*
 
@@ -136,8 +136,16 @@ The render output is a **single self-contained HTML file**. Deploy it to any sta
 
 Each rendered frame is a **screen with a bezel** (2px border, device corners, a status strip on phone/tablet, a browser-chrome bar on desktop/custom). The screen is the chrome — **you don't draw an outer box**, just the screen contents. Content is clipped at the bezel like a real screen.
 
-**ASCII sizing — FILL THE SCREEN (the #1 quality rule):**
-The device frame is a real screen, not a sticky note. Author enough content to **fill it** — header/title, body, actions, often a bottom bar. A few short lines in a big empty screen looks broken. Match **both** the column and row target:
+**ASCII sizing — COMPOSE THE SCREEN: top, body, bottom (the #1 quality rule):**
+The device frame is a real screen, not a sticky note. Compose it like one:
+
+1. Every screen has a **TOP** (title/nav/status), a **BODY** (its real purpose), and a **BOTTOM** (primary action/tab nav/status). Compose across all three.
+2. Use the per-device **ROW budget** like the column budget — the BOTTOM region's last line should land near the **bottom** of the row budget.
+3. Reach it with the screen's **real elements plus deliberate blank lines as a composition tool** — add real content / deliberate spacing until the rendered frame has **no large empty band at the bottom**. Verify by rendering.
+4. **Never pad with invented content.** A genuinely simple screen stays simple but is still composed (top at top, bottom region near the bottom) — not jammed at the top with a void.
+5. The renderer **fits the font to width** and renders rows **verbatim, top to bottom — it does not move content vertically.** Vertical composition is the authoring agent's job.
+
+Match **both** the column and row target:
 
 | Device | Columns | Rows | Renders at |
 |--------|---------|------|------------|
@@ -146,7 +154,7 @@ The device frame is a real screen, not a sticky note. Author enough content to *
 | `desktop` (1280×800) | **≈ 95–125** | **≈ 28–34** | ~16–21px |
 | `custom WxH` | **≈ W ÷ 10** | **≈ H ÷ 22** | ~16px |
 
-The renderer scales the font so the widest line fills the width and rows fill the height. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine; the default is a populated screen. Art far narrower than target renders chunky; far wider is clamped (min 7px, max 22px) and clipped at the bezel.
+The renderer scales the font so the widest line fills the width; it does **not** stretch rows to fill the height — composing top→body→bottom to the row target is what makes a frame read like a real screen. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine — keep it simple but still composed, never jammed at the top with a void. Art far narrower than target renders chunky; far wider is clamped (min 7px, max 22px) and clipped at the bezel.
 
 **Rich Markdown:**
 Four content areas support full GitHub-flavoured Markdown (rendered client-side by marked.js):
@@ -188,12 +196,16 @@ Per-frame edits are cheap: one `### Frame:` block → one card in the output HTM
 
 ## Examples
 
+One canonical, screenshot-verified example ships with the skill:
+
 | Directory | Description |
 |-----------|-------------|
-| `examples/minimal/` | 2-frame spec — smallest valid example |
-| `examples/multi-flow/` | 5-frame spec with 2 flows + desktop device |
-| `examples/dashboard/` | 6-frame desktop example — support-ticket console, dense tables/charts, one `custom 1440x900` frame |
-| `examples/stress-test/` | Real-world-scale stress test |
+| `examples/showcase/` | **FieldPilot job dispatch** — 6 frames across phone / desktop / tablet, 2 flows. The full feature set: Set the scene, Open questions, a keys-only Stream → screens map, three decision-flow `flow` cards (a deck-level meta routing card + one flow-scoped card per flow), and rich reviewer notes — every frame composed top→body→bottom. |
+
+Render it:
+```
+node scripts/wireframe-render.mjs examples/showcase/poc.md /tmp/showcase.html
+```
 
 ---
 

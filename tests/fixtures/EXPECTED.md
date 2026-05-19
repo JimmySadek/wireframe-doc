@@ -136,3 +136,53 @@ Open /tmp/test-out.html in a browser and verify:
 
 This is the Blocker 2 (XSS sanitization) fix verification.
 The sanitization happens client-side in the browser — the HTML file itself will contain the raw Markdown in `<script type="text/markdown">` blocks; DOMPurify strips XSS when the browser runs the init script.
+
+---
+
+## flow-block.md
+
+**Expected:** exit 0 (with one stderr Warning for the misplaced fence),
+HTML written to /tmp/test-out.html
+
+```
+Warning (line N): `flow` block cannot be placed here (inside a frame). A flow card must be at the meta level (before the first "## {Flow}") or under a "## {Flow}" heading before its first "### Frame:". Skipped.
+Wrote /tmp/test-out.html (XX.X KB, 2 frames across 1 flows)
+exit: 0
+```
+
+Verifies positional (meta + flow) decision-flow cards (v1.3.0):
+
+1. **Positional scoping — meta vs flow.** The META-level card
+   ("Deck-level routing", authored before the first `## {Flow}`) renders
+   **ONCE before any flow section** — it appears in the
+   `{{META_FLOW_CARDS_HTML}}` slot, OUTSIDE and BEFORE the first
+   `<section class="flow-section">`. The flow-scoped cards render at the
+   HEAD of the "Checkout flow" `<section>`, before its frame strip.
+2. **Flow-scoped cards in order.** Inside the "Checkout flow" section,
+   three logic-card panels in document order: "Entry & identity", then
+   "Failure handling", then the untitled card.
+3. **Collapsible markup — same mechanism as the context sections.** Each
+   **titled** card is a `<details class="logic-card" open>` with a
+   `<summary class="logic-card-title">` toggle (the SAME
+   `<details>`/`<summary>` wrapper as `details.scene-block` /
+   `details.questions-block` / `details.diagram-block`). Titles:
+   `Deck-level routing`, `Entry &amp; identity`, `Failure handling`. The
+   untitled bare ` ```flow ` card has **no** `<summary>` — it stays a
+   plain `<div class="logic-card">` always-open panel — but still renders
+   its `<pre>` correctly (the no-title fallback).
+4. Each card BODY is preserved **verbatim** in a monospace `<pre>` — the
+   branch line `├─ yes → charge it, skip entry`, the `└─` branches, and
+   the `▼` down-arrow appear exactly as authored. The fence info-string
+   title is NOT consumed from the body.
+5. The single `#frame-pay` token (in the "Entry & identity" card) renders
+   as `<a href="#frame-pay">#frame-pay</a>`, targeting the existing
+   per-frame anchor; all other characters are untouched.
+6. The logic cards have **no device chrome** — no `device-frame`
+   bezel/status-strip/browser-bar markup inside any panel.
+7. **Misplaced-fence Warning (non-fatal).** The ` ```flow ` fence authored
+   INSIDE the "Payment" frame cannot attach; the renderer prints exactly
+   one `Warning (line N): ... Skipped.` line to stderr, drops that card
+   (it is NOT rendered anywhere), and the render still completes and
+   **exits 0**.
+8. A spec with no ` ```flow ` block is unaffected (a panel is only emitted
+   per ` ```flow ` block, at the level it was authored).

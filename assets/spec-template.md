@@ -16,19 +16,34 @@ bezel (2px border, device corners, a status strip / browser bar). You draw
 the screen *contents*. Internal panels, tables and cards in box-drawing are
 fine — just no outer ┌──┐ … └──┘ wrapper.
 
-FILL THE SCREEN — this is the #1 rule. The device frame is a real screen,
-not a sticky note. Author a header/title, the body, actions, often a bottom
-bar — enough to fill it. A few short lines in a big empty screen looks
-broken. Match BOTH the column and row target:
+COMPOSE THE SCREEN — this is the #1 rule. The device frame is a real
+screen, not a sticky note. Compose it like one:
+  1. Every screen has a TOP (title/nav/status), a BODY (its real purpose),
+     and a BOTTOM (primary action/tab nav/status). Compose across all three.
+  2. Use the per-device ROW budget like the column budget — the BOTTOM
+     region's last line should land near the BOTTOM of the row budget.
+  3. Reach it with the screen's REAL elements plus deliberate blank lines
+     as a composition tool — add real content / deliberate spacing until
+     the rendered frame has NO large empty band at the bottom. Verify by
+     rendering.
+  4. NEVER pad with invented content. A genuinely simple screen stays
+     simple but is still composed (top at top, bottom region near the
+     bottom) — not jammed at the top with a void.
+  5. The renderer FITS THE FONT TO WIDTH and renders rows VERBATIM, top to
+     bottom — it does NOT move content vertically. Vertical composition is
+     YOUR job.
+
+Match BOTH the column and row target:
 
   phone   (390×844)   → ≈ 34–44 cols  × ≈ 36–44 rows  (~13–17px)
   tablet  (768×1024)  → ≈ 70–95 cols  × ≈ 44–56 rows  (~12–17px)
   desktop (1280×800)  → ≈ 95–125 cols × ≈ 28–34 rows  (~16–21px)
   custom  WxH         → ≈ W ÷ 10 cols × ≈ H ÷ 22 rows (~16px)
 
-The renderer scales the font so the widest line fills the width and the
-rows fill the height. Keep every line the same display width so internal
-panels align.
+The renderer scales the font so the widest line fills the width; it does
+NOT stretch rows to fill the height — composing top→body→bottom to the row
+target is what makes a frame read like a real screen. Keep every line the
+same display width so internal panels align.
 
 CRAFT — read SKILL.md § "Authoring great wireframes" for the full system.
 The essentials:
@@ -44,9 +59,10 @@ The essentials:
     [ Option ▾ ], tables, ███░░ progress, ▁▂▆█ sparklines, • list rows).
   • Add a tiny legend line for any non-obvious symbols.
 
-A genuinely sparse screen (a one-line confirmation) is fine;
-the default is a populated screen. This comment is ignored by the renderer;
-delete it or keep it, your call.
+A genuinely sparse screen (a one-line confirmation) is fine — keep it
+simple but still composed (top at top, bottom region near the bottom),
+never jammed at the top with a void. This comment is ignored by the
+renderer; delete it or keep it, your call.
 -->
 
 ## Set the scene
@@ -72,7 +88,48 @@ graph LR
   landing --> otp --> main
 ```
 
+<!--
+OPTIONAL decision-flow cards — the "decided logic". They COMPLEMENT the
+Mermaid screen-map (Mermaid = which screens connect; this = the rules that
+decide what the user sees). PLACEMENT = SCOPE, positionally:
+
+  • A ```flow block HERE (at the meta level, before the first ## {Flow},
+    alongside Set the scene / Open questions / Stream → screens) is a
+    DECK-LEVEL card — rendered ONCE before all flows. Put GLOBAL
+    entry/identity/routing logic here.
+  • A ```flow block under a ## {Flow} heading (before its first ### Frame:)
+    is a FLOW-SCOPED card at that flow's head. Put FLOW-LOCAL logic there.
+
+The text after ```flow is the card TITLE; the block BODY is rendered
+verbatim monospace (Markdown does NOT render; NOT a screen — no device
+chrome). MANY named cards allowed at BOTH levels — separate titled panels
+in document order. A bare ```flow fence renders untitled. Titled cards are
+COLLAPSIBLE (click the title). The six moves: fan-in entry · ▼ progression ·
+a question · ├─/└─ branches · indented sub-options · (parenthetical aside) +
+free-prose tail. #frame-{key} becomes a link — keep links OPTIONAL, SPARSE,
+on decided OUTCOMES (leaves) only; never a node per screen.
+-->
+
+```flow Entry & identity
+arrives via link or direct URL
+            │
+            ▼
+  Already verified on this device?
+  ├─ yes → skip OTP, go straight in
+  └─ no  → send code, collect it  → #frame-otp
+           (resend allowed after 60s)
+```
+
 ## Onboarding flow
+
+```flow Code retry policy
+code submitted
+        │
+        ▼
+  Correct?
+  ├─ yes → continue into the app
+  └─ no  → show attempts left, allow resend after 60s
+```
 
 ### Frame: Landing
 key: landing

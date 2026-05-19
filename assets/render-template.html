@@ -137,6 +137,61 @@
       padding-bottom: 8px;
       border-bottom: 2px solid var(--border);
     }
+    /* ── Decision-flow "logic card" ──
+       The decided-logic panel that complements the Mermaid screen-map: it
+       sits at the HEAD of its flow, above the screens it governs. NOT a
+       screen — no device bezel/chrome. A plain neutral bordered panel, kept
+       visually distinct from both the device frames and the sticky notes but
+       inside the same neutral-gray system (reuses --accent / --border). */
+    .logic-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-card);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    /* Titled logic cards collapse via the SAME <details>/<summary> mechanism
+       as Set the scene / Open questions / Stream → screens — the card title
+       is the toggle. Untitled cards stay plain always-open <div> panels. */
+    details.logic-card { padding: 0; overflow-x: visible; }
+    details.logic-card > pre {
+      padding: 0 20px 16px;
+      overflow-x: auto;
+    }
+    .logic-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    summary.logic-card-title {
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      margin-bottom: 0;
+    }
+    summary.logic-card-title::-webkit-details-marker { display: none; }
+    summary.logic-card-title::before {
+      content: "▶ ";
+      display: inline-block;
+      transition: transform 0.15s;
+    }
+    details.logic-card[open] summary.logic-card-title::before { transform: rotate(90deg); }
+    .logic-card pre {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre;
+      color: var(--text);
+    }
+    .logic-card a { color: var(--accent); text-decoration: underline; }
+    .logic-card a:hover { text-decoration: none; }
+
     .frame-strip {
       display: flex;
       align-items: flex-start;
@@ -623,14 +678,16 @@
     @media (prefers-reduced-motion: no-preference) {
       details.scene-block summary::before,
       details.questions-block summary::before,
-      details.diagram-block summary::before {
+      details.diagram-block summary::before,
+      details.logic-card summary.logic-card-title::before {
         transition: transform 0.15s;
       }
     }
     /* Default: instant (reduced motion friendly) */
     details.scene-block summary::before,
     details.questions-block summary::before,
-    details.diagram-block summary::before {
+    details.diagram-block summary::before,
+    details.logic-card summary.logic-card-title::before {
       transition: none;
     }
 
@@ -724,6 +781,10 @@
       <p class="diagram-caption">Stream → screens flow</p>
     </div>
   </details>
+
+  <!-- ── Deck-level decision-flow cards (positionally scoped: authored at
+       the meta level, rendered once before all flow sections) ── -->
+  {{META_FLOW_CARDS_HTML}}
 
   <!-- ── Flow sections ── -->
   {{FLOW_SECTIONS_HTML}}

@@ -1,6 +1,6 @@
 ---
 name: wireframe-doc
-version: 1.2.0
+version: 1.3.0
 author: Jimmy Sadek <gamal.sadek@gmail.com>
 license: MIT
 description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII frames inside thin device-frame chrome, Mermaid flow diagrams, sticky-note style reviewer notes, and a Netflix-style horizontal canvas with tap-to-enlarge modal. Designed for asynchronous founder/team review BEFORE committing to UI design or Figma. Use this skill whenever the user wants to wireframe, mockup, sketch screens, or share screen flows for review — including phrases like "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user doesn't say the word "wireframe" explicitly — sketching screens, scaffolding a user flow, sharing frames with notes for async team review, and replacing heavy Figma exports with lightweight shareable URLs are all core use cases. Bundle scales with frame count — ~50 KB small to ~215 KB for a large multi-flow deck (still far smaller than a 1–2 MB Figma export).
@@ -65,6 +65,7 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 | ` ```ascii ` block | Screen *contents* (monospace, whitespace preserved). The device frame is the screen border — **don't draw an outer box**; internal panels/tables are fine. Emoji ≈ 2 columns. |
 | `**Notes:**` + content | Reviewer notes — full Markdown supported (bullets, paragraphs, headings, code, blockquotes) |
 | ` ```mermaid ` block under `## Stream → screens` | Flow diagram. Use frame keys as node IDs — renderer substitutes frame headings as labels. Omit to auto-generate a linear graph. |
+| ` ```flow {Card title} ` block — **placement = scope** | Flow-level **decision-flow** card — the *decided logic* (conditions/rules that decide what a user sees). **Positionally scoped:** authored at the **meta level** (before the first `## {Flow}`, alongside scene / open questions / Stream → screens) → a **deck-level** card rendered ONCE before all flows (use for global entry/identity/routing logic); authored under a `## {Flow}` heading (before its first `### Frame:`) → that **flow's** card at its head (flow-local logic). Text after `flow` is the card title (optional → untitled card); the BODY is verbatim monospace. Complements the Mermaid screen-map (does not replace it); NOT a screen, NO device chrome, Markdown does NOT render. **Many** named cards allowed at **both** levels — separate titled panels in document order. **Titled cards are collapsible** (click the title — same toggle as the context sections). The literal token `#frame-{key}` becomes an anchor to that frame — OPTIONAL, sparse, on decided outcomes only. A `flow` fence that cannot attach (e.g. inside a frame) prints a one-line stderr Warning and is skipped (render still exits 0). |
 
 **YAML frontmatter fields:**
 - `title` — page title + header h1
@@ -82,8 +83,26 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 
 Each rendered frame is a **screen with a bezel** (2px border, device corners, a status strip on phone/tablet, a browser-chrome bar on desktop/custom). The screen is the chrome — **you don't draw an outer box**, just the screen contents. Content is clipped at the bezel like a real screen.
 
-**ASCII sizing — FILL THE SCREEN (the #1 quality rule):**
-The device frame is a real screen, not a sticky note. Author enough content to **fill it** — a header/title row, the body, actions, and often a bottom bar. A few short lines floating in a big empty screen looks broken, not low-fi. Match **both** the column and row target for the device:
+**ASCII sizing — COMPOSE THE SCREEN: top, body, bottom (the #1 quality rule):**
+The device frame is a real screen, not a sticky note. Compose it like one:
+
+1. Every screen has a **TOP** (title / nav / status), a **BODY** (its real
+   purpose), and a **BOTTOM** (primary action / tab nav / status). Compose
+   across all three.
+2. Use the per-device **ROW budget** like the column budget. The BOTTOM
+   region's last line should land near the **bottom** of the row budget.
+3. Reach it with the screen's **real elements plus deliberate blank lines as
+   a composition tool** — add real content / deliberate spacing until the
+   rendered frame has **no large empty band at the bottom**. Verify by
+   rendering.
+4. **Never pad with invented content.** A genuinely simple screen stays
+   simple but is still composed (top at top, bottom region near the bottom) —
+   not jammed at the top with a void.
+5. The renderer **fits the font to width** and renders rows **verbatim, top
+   to bottom — it does not move content vertically.** Vertical composition is
+   your job as the authoring agent; that is what this rule teaches.
+
+Match **both** the column and row target for the device:
 
 | Device | Columns | Rows | Renders at |
 |--------|---------|------|------------|
@@ -92,7 +111,7 @@ The device frame is a real screen, not a sticky note. Author enough content to *
 | `desktop` (1280×800) | **≈ 95–125** | **≈ 28–34** | ~16–21px |
 | `custom WxH` | **≈ W ÷ 10** | **≈ H ÷ 22** | ~16px |
 
-The renderer scales the font so the widest line fills the width and the rows fill the height — authoring to both targets is what makes a frame read like a real screen. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine; the *default* is a populated screen. Art far narrower than target renders chunky; far wider is clamped (min 7px) and clipped at the bezel.
+The renderer scales the font so the widest line fills the width; it does **not** stretch rows to fill the height — composing top→body→bottom to the row target is what makes a frame read like a real screen. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine — keep it simple but still composed, never jammed at the top with a void. Art far narrower than target renders chunky; far wider is clamped (min 7px) and clipped at the bezel.
 
 **CLI flags:**
 - `--lenient` — warn instead of error for `frame_count` mismatches and invalid `device:` values
@@ -106,7 +125,7 @@ This section teaches you, the authoring agent, how to produce top-tier wireframe
 
 ### 1. Compose like a real screen
 
-Every screen has a **top** (title / nav / actions), a **body** (the real content), and usually a **bottom** (tab nav / status / primary action). Don't float a few lines in the middle — fill it to the column **and** row target (see § ASCII sizing). Density by device: `phone` = one focused task + one primary action; `tablet` = one rich view; `desktop`/`custom` = dense, multi-panel (tables, KPI cards, side rails).
+Every screen has a **TOP** (title / nav / actions), a **BODY** (its real purpose), and a **BOTTOM** (tab nav / status / primary action). Compose across all three: the top sits at the top, the bottom region's last line lands near the **bottom** of the row budget, the body fills between them (see § ASCII sizing). Reach the row target with the screen's **real elements plus deliberate blank lines** — never invented filler. A genuinely simple screen stays simple but is still composed (top at top, bottom region near the bottom); the failure mode is content **jammed at the top with a void below**, not deliberate empty space. Density by device: `phone` = one focused task + one primary action; `tablet` = one rich view; `desktop`/`custom` = dense, multi-panel (tables, KPI cards, side rails).
 
 Hierarchy in **pure ASCII** (never `##`/`**` — they won't render):
 - **Title / section:** a short label then a full-width rule, or an `UPPERCASE` label.
@@ -164,9 +183,59 @@ For **every** frame, exploit rendered Markdown in the notes:
 - `- [ ]` / `- [x]` acceptance criteria; numbered lists for ordered steps; nested lists for decision trees.
 - `_italic_` for asides. The screen shows *what*; the notes argue *why / open questions / backend* — in rich text.
 
-### 6. Anti-patterns — do not ship these
+### 6. Decision-flow cards — the decided-logic layer (optional)
 
-- A few short lines marooned in a big screen (sparse — fill it).
+A ` ```flow {Card title} ` block renders as a plain bordered "logic card" —
+the *decided logic*. It **complements the Mermaid screen-map, it does not
+replace it**: Mermaid maps *which screens connect*; this expresses the
+*conditions/rules that decide what a user sees*.
+
+**Placement determines scope** (positional, like the rest of the doc):
+
+- **Meta level** — authored *before the first `## {Flow}`*, alongside
+  Set the scene / Open questions / Stream → screens → a **deck-level** card,
+  rendered ONCE before all flow sections, governing the whole deck. Put
+  **global entry / identity / routing** logic here (it stays visible no
+  matter which flow the reader scrolls to).
+- **Under a `## {Flow}` heading** — *before that flow's first `### Frame:`* →
+  a **flow-scoped** card at the head of that flow, above the screens it
+  governs. Put **flow-local** logic here.
+
+The text after `flow` on the fence line is the **card title** (optional — a
+bare ` ```flow ` fence renders as an untitled card). You may add **many** named
+cards at **both** levels — they render as separate titled panels in document
+order (split distinct decisions into separate cards). **Titled cards are
+collapsible** — the title is the toggle, the same mechanism as the context
+sections. Verbatim monospace — Markdown does NOT render here (like the screen
+block); it is NOT a screen, so no device chrome. The body is never consumed
+for the title. A `flow` fence that cannot attach (e.g. inside a frame) prints
+a one-line stderr Warning and is skipped — the render still exits 0.
+
+The six recurring moves (compose in this order):
+
+```flow Entry & identity
+cart + saved-payment            ← fan-in entry line (what arrives here)
+        │
+        ▼                       ← a down-arrow progression step
+  Has a default card on file?   ← a question / decision line
+  ├─ yes → charge it, skip      ← binary branch lines
+  └─ no  → ask for a card
+           Apple Pay first      ← indented sub-options
+           (iOS only)           ← parenthetical aside + optional free-prose tail
+```
+
+**Screen links — the discipline that keeps this from collapsing into a
+screen-map:** the literal token `#frame-{key}` (an existing frame key) becomes
+an anchor to that frame. It is **optional and sparse** — put a link only on a
+**decided OUTCOME (a leaf)**, e.g. `└─ no → ask for a card → #frame-pay`.
+**Never** add a node-per-screen; the moment every line points at a frame, this
+stops being decided logic and just duplicates the Mermaid map. The renderer
+linkifies `#frame-{key}` mechanically and does not enforce this — it is your
+discipline as the author.
+
+### 7. Anti-patterns — do not ship these
+
+- Content jammed at the top with a large empty band below (compose top→body→bottom to the row target — deliberate empty space is valid, invented filler is not).
 - An outer `┌──┐ … └──┘` box around the whole frame (the bezel **is** the screen).
 - `##`, `**`, or `` ``` `` **inside the screen** — literal noise; use ASCII/emoji hierarchy.
 - Misaligned columns / inconsistent line widths.
@@ -178,16 +247,13 @@ For **every** frame, exploit rendered Markdown in the notes:
 
 | Example | Description |
 |---------|-------------|
-| `examples/minimal/poc.md` | Smallest valid 2-frame spec (note-taking app onboarding). Good starting point. |
-| `examples/multi-flow/poc.md` | 5-frame spec with 2 flows, two desktop frames, multi-paragraph notes. Shows the full feature set. |
-| `examples/dashboard/poc.md` | 6-frame **desktop** example (support-ticket queue console). Dense tables, KPI cards, ASCII charts, one `custom 1440x900` frame — the ASCII-fit showcase. |
-| `examples/stress-test/poc.md` | Real-world-scale stress test. Mermaid with subgraphs, rich notes, edge cases. |
+| `examples/showcase/poc.md` | The single canonical, screenshot-verified showcase — **FieldPilot job dispatch** (6 frames, 2 flows). Exercises the full feature set: Set the scene, Open questions, a keys-only Stream → screens Mermaid map, **three decision-flow `flow` cards** (one deck-level meta routing card + one flow-scoped card per flow), and 6 frames across phone / desktop / tablet with rich reviewer notes — every frame composed top→body→bottom. This is what good skill output looks like. |
 
-Render any example:
+Render the example:
 ```
 node ~/.claude/skills/wireframe-doc/scripts/wireframe-render.mjs \
-  ~/.claude/skills/wireframe-doc/examples/minimal/poc.md \
-  /tmp/test-minimal.html && open /tmp/test-minimal.html
+  ~/.claude/skills/wireframe-doc/examples/showcase/poc.md \
+  /tmp/test-showcase.html && open /tmp/test-showcase.html
 ```
 
 ## Tests

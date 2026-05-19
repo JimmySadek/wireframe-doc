@@ -5,6 +5,97 @@ All notable changes to the `wireframe-doc` skill are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-05-19
+
+Converges three threads into one release: the **decision-flow block** (a
+flow-level "decided logic" layer that complements — does not replace — the
+Mermaid screen-map), the operational **COMPOSE-THE-SCREEN** craft rule, and
+a **single canonical screenshot-verified example** replacing the prior four.
+Still zero-dependency, single-file, offline-safe; the renderer and the
+device-screen chrome contract are unchanged and every existing spec's output
+is byte-identical.
+
+### Added
+
+- **` ```flow {Card title} ` decision-flow cards — placement = scope.**
+  Fenced ` ```flow ` blocks render as plain neutral bordered "logic cards"
+  expressing the *decided logic*. Where the Mermaid `## Stream → screens`
+  diagram maps *which screens connect*, these cards express the
+  *conditions/rules that decide what a user sees* (fan-in entry, down-arrow
+  progression, decision/question lines, binary branches, indented
+  sub-options, parenthetical asides). **A card's placement determines its
+  scope, positionally — like the rest of the doc:** a `flow` block at the
+  **meta level** (before the first `## {Flow name}`, alongside Set the scene
+  / Open questions / Stream → screens) is a **deck-level** card, rendered
+  ONCE before all flow sections, governing the whole deck (for global
+  entry/identity/routing logic); a `flow` block under a `## {Flow name}`
+  heading, before that flow's first `### Frame:`, is a **flow-scoped** card
+  at the HEAD of that flow section, above the screens it governs (for
+  flow-local logic). The text after `flow` on the fence line is the card
+  **title** (optional — a bare ` ```flow ` fence renders as an untitled
+  card; the title is read from the fence info string, never consumed from
+  the body). **Multiple named cards are supported at BOTH levels** and
+  render as separate titled panels in document order. **Titled cards are
+  collapsible** — the card title is the toggle, reusing the exact
+  `<details>`/`<summary>` mechanism the Set the scene / Open questions /
+  Stream → screens context sections already use (no new collapse machinery,
+  no new colors); untitled cards stay plain always-open panels. A card is
+  **not a screen** — no device bezel/status-strip/browser-chrome — and its
+  body is rendered **verbatim** in monospace at the same fidelity as the
+  ` ```ascii ` screen block (Markdown, marked.js, DOMPurify and Mermaid do
+  NOT touch it; whitespace and box-drawing/branch/arrow glyphs are preserved
+  exactly). The literal token `#frame-{key}` is linkified to an anchor
+  targeting that frame's existing per-frame anchor — optional, and (by
+  documented authoring discipline) sparse and only on decided
+  outcomes/leaves, never a node-per-screen. A `flow` fence that cannot
+  attach (e.g. inside a frame) emits a one-line stderr Warning and is
+  skipped — the render still exits 0 (replaces the prior silent drop).
+  SKILL.md gains a cheatsheet row and a craft-system authoring subsection;
+  `assets/spec-template.md` (meta-level + flow-scoped cards) and
+  `examples/multi-flow/poc.md` (a deck-level routing card + a flow-scoped
+  card) gain copy-ready examples; `tests/fixtures/flow-block.md` is a new
+  verification fixture (meta + flow placement, named cards in order,
+  untitled fallback, leaf link, collapsible markup, misplaced-fence
+  Warning). Specs without a ` ```flow ` block render byte-identically (the
+  only template change is the static `.logic-card` CSS plus the shared
+  collapse rule and the meta-card placeholder).
+
+### Changed
+
+- **Operational COMPOSE-THE-SCREEN craft rule (replaces "FILL THE
+  SCREEN").** The #1 quality rule is reframed from "author enough content to
+  fill it" to an operational composition discipline applied consistently in
+  `SKILL.md`, `README.md`, and `assets/spec-template.md`: every screen has a
+  TOP (title/nav/status), a BODY (its real purpose), and a BOTTOM (primary
+  action/tab nav/status); use the per-device ROW budget like the column
+  budget so the bottom region lands near the bottom; reach it with the
+  screen's real elements plus **deliberate blank lines as a composition
+  tool** — never invented filler; a genuinely simple screen stays simple but
+  is still composed (the failure mode is content jammed at the top with a
+  void, not deliberate empty space). The inaccurate "the renderer scales the
+  font so … the rows fill the height" line is corrected — the renderer
+  fits the font to **width** only and renders rows verbatim top to bottom;
+  it does not move content vertically, so vertical composition is the
+  authoring agent's job. The per-device column **and** row target table is
+  retained. No renderer or template change.
+- **Single canonical, screenshot-verified example.** The four prior examples
+  (`examples/minimal/`, `examples/multi-flow/`, `examples/dashboard/`,
+  `examples/stress-test/`) are replaced by one canonical
+  `examples/showcase/poc.md` — the **FieldPilot job dispatch** deck (6 frames
+  across phone/desktop/tablet, 2 flows): Set the scene, Open questions, a
+  keys-only Stream → screens Mermaid map, three decision-flow `flow` cards
+  (one deck-level meta routing card + one flow-scoped card per flow), and
+  rich reviewer notes — every frame composed top→body→bottom and
+  screenshot-verified per the verified-example protocol. SKILL.md and README
+  "## Examples" now reference only this example; the render command path is
+  updated.
+- **README refresh.** The hero screenshots `assets/sample.png` and
+  `assets/sample-shared.png` are regenerated from the rendered v1.3.0
+  showcase (a composed full frame; a shared-frame deep link with the "Shared
+  frame" marker) with updated captions; the README "## Examples" section,
+  the duplicated craft text (now COMPOSE-THE-SCREEN), and the version badge
+  (→ 1.3.0) are updated to match.
+
 ## [1.2.0] — 2026-05-17
 
 Modal review polish: enlarged frames now read as true device screens, and
