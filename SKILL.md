@@ -258,7 +258,7 @@ node ~/.claude/skills/wireframe-doc/scripts/wireframe-render.mjs \
 
 ## Tests
 
-Seven fixture files in `tests/fixtures/` cover all blocker and important-fix verifications. Run them manually:
+Eight fixture files in `tests/fixtures/` cover all blocker and important-fix verifications (including `flow-block.md` for the decision-flow card). Run them manually:
 
 ```bash
 cd ~/.claude/skills/wireframe-doc

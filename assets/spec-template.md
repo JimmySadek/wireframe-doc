@@ -137,13 +137,19 @@ key: landing
 Scene: Entry point. _User arrives via link or direct URL._
 
 ```ascii
-┌──────────────┐
-│  [App logo]  │
-│              │
-│  Welcome     │
-│              │
-│  [Continue]  │
-└──────────────┘
+      [App logo]
+
+  ───────────────────────
+
+  Welcome to [Product]
+  One line on what it does.
+
+
+
+  [    Continue    ]
+
+  Already have an account?
+  [ Sign in ]
 ```
 
 **Notes:**
@@ -157,15 +163,21 @@ key: otp
 Scene: User enters a verification code.
 
 ```ascii
-┌──────────────┐
-│  Enter code  │
-│              │
-│  [_][_][_]  │
-│  [_][_][_]  │
-│              │
-│  Resend in   │
-│  00:45       │
-└──────────────┘
+  ‹ Back              Help
+
+  ───────────────────────
+
+  Enter the 6-digit code
+  Sent to +1 ••• ••• 4821
+
+  [_] [_] [_] [_] [_] [_]
+
+
+
+  Resend in 00:45
+
+
+  [     Verify     ]
 ```
 
 **Notes:**
@@ -181,12 +193,18 @@ key: main
 Scene: [One line describing what the user sees and why they're here.]
 
 ```ascii
-┌──────────────┐
-│              │
-│  [content]   │
-│              │
-│  [CTA]       │
-└──────────────┘
+  [Product]            🔔  👤
+
+  ─────────────────────────────
+
+  [ main content region — the
+    real purpose of this screen ]
+
+
+
+
+  ─────────────────────────────
+  🏠 Home   📋 Items   ⚙️ More
 ```
 
 **Notes:**

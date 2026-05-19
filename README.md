@@ -14,13 +14,13 @@ diagram, reviewer notes — that you share as one URL. ~50 KB for a small deck,
 messy moment before design: when you need cofounders or your team reacting to
 the screens in your head.
 
-![The rendered FieldPilot showcase deck — a device-framed technician screen with reviewer notes, the Copy link button, and the enlarge control](assets/sample.png)
+![The FieldPilot showcase, enlarged: the desktop "Dispatch board" frame in a browser-chrome device shell — KPI strip on top, unassigned-jobs queue and fleet timeline as the body, action bar pinned to the bottom — beside its reviewer notes, with the Copy link button and the modal close/Prev/Next controls](assets/sample.png)
 
-*The FieldPilot job-dispatch showcase — device-framed screens composed top→body→bottom, reviewer notes, shared as one URL. Every screen is authored as plain Markdown ASCII.*
+*The "Dispatch board" frame (desktop) from the FieldPilot job-dispatch showcase, opened in the enlarge modal — composed top→body→bottom, its reviewer notes alongside. Authored as plain Markdown ASCII; shared as one URL.*
 
-![Opening a shared FieldPilot frame link — the recipient lands on exactly that screen, badged "Shared frame", with notes and Copy link to start the discussion](assets/sample-shared.png)
+![A shared FieldPilot link opened to the phone "Today's route" frame — enlarged in the modal, badged "SHARED FRAME — YOU WERE LINKED HERE", showing the technician's ordered stop list with its reviewer notes and the Copy link button](assets/sample-shared.png)
 
-*Open a shared link and you land on the exact frame, marked so the recipient knows which screen is under discussion.*
+*Open a shared link and you land on exactly that frame — here the phone "Today's route" screen — badged "SHARED FRAME — YOU WERE LINKED HERE" so the recipient knows which screen is under discussion.*
 
 ## The problem
 
@@ -170,7 +170,7 @@ HTML in Markdown is sanitized by DOMPurify — unsafe tags (`<script>`, `<iframe
 
 ASCII blocks (` ```ascii ` fences) stay literal in `<pre>` for correct monospace rendering.
 
-**CDN fallback:** if Mermaid or marked.js fail to load, raw source is shown as `<pre>` after 2 seconds.
+**CDN fallback:** if Mermaid or marked.js fail to load from the CDN (including failing to load at all), the affected blocks' raw source is shown as a `<pre>` after 2 seconds — the two fallbacks are independent, so a failure of one library does not suppress the other's content.
 
 **Mermaid integration:**
 - Use frame keys directly as node IDs in the Mermaid block

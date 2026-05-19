@@ -11,11 +11,13 @@ Converges three threads into one release: the **decision-flow block** (a
 flow-level "decided logic" layer that complements — does not replace — the
 Mermaid screen-map), the operational **COMPOSE-THE-SCREEN** craft rule, and
 a **single canonical screenshot-verified example** replacing the prior four.
-Still zero-dependency, single-file, offline-safe; the renderer and the
-device-screen chrome contract are unchanged; specs without a ` ```flow `
-block have no spec-conditional output change (functionally identical),
-though the shared template carries new static CSS so output is not
-literally byte-identical.
+Still zero-dependency, single-file, offline-safe. The renderer gains
+` ```flow ` block parsing and logic-card rendering (and the
+misplaced-fence Warning); the device-screen chrome contract and the
+width-fit / verbatim-rows behavior are unchanged. Specs without a
+` ```flow ` block have no spec-conditional output change (functionally
+identical), though the shared template carries new static CSS so output
+is not literally byte-identical.
 
 ### Added
 
@@ -98,9 +100,14 @@ literally byte-identical.
   updated.
 - **README refresh.** The hero screenshots `assets/sample.png` and
   `assets/sample-shared.png` are regenerated from the rendered v1.3.0
-  showcase (a composed full frame; a shared-frame deep link with the "Shared
-  frame" marker) with updated captions; the README "## Examples" section,
-  the duplicated craft text (now COMPOSE-THE-SCREEN), and the version badge
+  showcase: `sample.png` is the **desktop "Dispatch board"** frame opened in
+  the enlarge modal (KPI strip / unassigned queue + fleet timeline / action
+  bar, with its reviewer notes); `sample-shared.png` is the **phone "Today's
+  route"** frame reached via a shared deep link, enlarged in the modal and
+  badged "SHARED FRAME — YOU WERE LINKED HERE". Their README alt text and
+  captions are rewritten to describe exactly what each image shows (device,
+  which screen, what is visible). The README "## Examples" section, the
+  duplicated craft text (now COMPOSE-THE-SCREEN), and the version badge
   (→ 1.3.0) are updated to match.
 
 ### Fixed
