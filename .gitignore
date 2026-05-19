@@ -8,6 +8,7 @@
 .claude/
 .serena/
 .playwright-cli/
+.gstack/
 
 # OS / editor cruft
 .DS_Store
