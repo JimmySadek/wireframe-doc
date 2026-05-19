@@ -37,6 +37,25 @@ graph LR
 
 ## Mobile flow
 
+```flow First-launch routing
+first launch + no workspace yet
+            │
+            ▼
+  Workspace name entered?
+  ├─ no  → stay on onboarding, block CONTINUE
+  └─ yes → create workspace, go to inbox → #frame-task-list
+           (no email/account asked yet — deferred)
+```
+
+```flow Empty-state vs returning
+inbox opened
+        │
+        ▼
+  Any tasks yet?
+  ├─ no  → warm empty state + ADD A TASK
+  └─ yes → today/upcoming list, sorted by due date
+```
+
 ### Frame: Onboarding
 key: onboard
 

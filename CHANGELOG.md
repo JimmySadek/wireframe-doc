@@ -5,6 +5,42 @@ All notable changes to the `wireframe-doc` skill are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-05-19
+
+Adds the **decision-flow block** — a flow-level "decided logic" layer that
+complements (does not replace) the Mermaid screen-map. Still
+zero-dependency, single-file, offline-safe; the device-screen chrome
+contract and every existing spec's output are unchanged.
+
+### Added
+
+- **Flow-level ` ```flow {Card title} ` decision-flow cards.** Fenced
+  ` ```flow ` blocks placed under a `## {Flow name}` heading, before that
+  flow's first `### Frame:`, render as plain neutral bordered "logic cards"
+  at the HEAD of the flow section, above the screens they govern. Where the
+  Mermaid `## Stream → screens` diagram maps *which screens connect*, these
+  cards express the *conditions/rules that decide what a user sees* (fan-in
+  entry, down-arrow progression, decision/question lines, binary branches,
+  indented sub-options, parenthetical asides). The text after `flow` on the
+  fence line is the card **title** (optional — a bare ` ```flow ` fence
+  renders as an untitled card; the title is read from the fence info string,
+  never consumed from the body). **Multiple named cards per flow** are
+  supported and render as separate titled panels in document order. A card
+  is **not a screen** — no device bezel/status-strip/browser-chrome — and
+  its body is rendered **verbatim** in monospace at the same fidelity as the
+  ` ```ascii ` screen block (Markdown, marked.js, DOMPurify and Mermaid do
+  NOT touch it; whitespace and box-drawing/branch/arrow glyphs are preserved
+  exactly). The literal token `#frame-{key}` is linkified to an anchor
+  targeting that frame's existing per-frame anchor — optional, and (by
+  documented authoring discipline) sparse and only on decided
+  outcomes/leaves, never a node-per-screen. SKILL.md gains a cheatsheet row
+  and a craft-system authoring subsection; `assets/spec-template.md` (two
+  named cards) and `examples/multi-flow/poc.md` (named cards) gain
+  copy-ready examples; `tests/fixtures/flow-block.md` is a new verification
+  fixture (named cards in order + untitled fallback + leaf link). Specs
+  without a ` ```flow ` block render byte-identically (the only template
+  change is a static `.logic-card` / `.logic-card-title` CSS rule).
+
 ## [1.2.0] — 2026-05-17
 
 Modal review polish: enlarged frames now read as true device screens, and

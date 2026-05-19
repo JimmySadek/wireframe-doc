@@ -1,6 +1,6 @@
 ---
 name: wireframe-doc
-version: 1.2.0
+version: 1.3.0
 author: Jimmy Sadek <gamal.sadek@gmail.com>
 license: MIT
 description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII frames inside thin device-frame chrome, Mermaid flow diagrams, sticky-note style reviewer notes, and a Netflix-style horizontal canvas with tap-to-enlarge modal. Designed for asynchronous founder/team review BEFORE committing to UI design or Figma. Use this skill whenever the user wants to wireframe, mockup, sketch screens, or share screen flows for review — including phrases like "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user doesn't say the word "wireframe" explicitly — sketching screens, scaffolding a user flow, sharing frames with notes for async team review, and replacing heavy Figma exports with lightweight shareable URLs are all core use cases. Bundle scales with frame count — ~50 KB small to ~215 KB for a large multi-flow deck (still far smaller than a 1–2 MB Figma export).
@@ -65,6 +65,7 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 | ` ```ascii ` block | Screen *contents* (monospace, whitespace preserved). The device frame is the screen border — **don't draw an outer box**; internal panels/tables are fine. Emoji ≈ 2 columns. |
 | `**Notes:**` + content | Reviewer notes — full Markdown supported (bullets, paragraphs, headings, code, blockquotes) |
 | ` ```mermaid ` block under `## Stream → screens` | Flow diagram. Use frame keys as node IDs — renderer substitutes frame headings as labels. Omit to auto-generate a linear graph. |
+| ` ```flow {Card title} ` block under a `## {Flow name}` heading, before its first `### Frame:` | Flow-level **decision-flow** card — the *decided logic* (conditions/rules that decide what a user sees). Text after `flow` on the fence line is the card title (optional → untitled card); the BODY is verbatim monospace. Complements the Mermaid screen-map (does not replace it); NOT a screen, NO device chrome, Markdown does NOT render. **Many** named cards allowed per flow — they render as separate titled panels in document order. The literal token `#frame-{key}` becomes an anchor to that frame — OPTIONAL, sparse, on decided outcomes only. |
 
 **YAML frontmatter fields:**
 - `title` — page title + header h1
@@ -164,7 +165,43 @@ For **every** frame, exploit rendered Markdown in the notes:
 - `- [ ]` / `- [x]` acceptance criteria; numbered lists for ordered steps; nested lists for decision trees.
 - `_italic_` for asides. The screen shows *what*; the notes argue *why / open questions / backend* — in rich text.
 
-### 6. Anti-patterns — do not ship these
+### 6. Decision-flow cards — the decided-logic layer (optional)
+
+A ` ```flow {Card title} ` block placed under a `## {Flow name}` heading,
+**before** that flow's first `### Frame:`, renders as a plain bordered "logic
+card" at the head of the flow — above the screens it governs. It **complements
+the Mermaid screen-map, it does not replace it**: Mermaid maps *which screens
+connect*; this expresses the *conditions/rules that decide what a user sees*.
+The text after `flow` on the fence line is the **card title** (optional — a
+bare ` ```flow ` fence renders as an untitled card). You may add **many** named
+cards under one flow — they render as separate titled panels in document order
+(split distinct decisions into separate cards). Verbatim monospace — Markdown
+does NOT render here (like the screen block); it is NOT a screen, so no device
+chrome. The body is never consumed for the title.
+
+The six recurring moves (compose in this order):
+
+```flow Entry & identity
+cart + saved-payment            ← fan-in entry line (what arrives here)
+        │
+        ▼                       ← a down-arrow progression step
+  Has a default card on file?   ← a question / decision line
+  ├─ yes → charge it, skip      ← binary branch lines
+  └─ no  → ask for a card
+           Apple Pay first      ← indented sub-options
+           (iOS only)           ← parenthetical aside + optional free-prose tail
+```
+
+**Screen links — the discipline that keeps this from collapsing into a
+screen-map:** the literal token `#frame-{key}` (an existing frame key) becomes
+an anchor to that frame. It is **optional and sparse** — put a link only on a
+**decided OUTCOME (a leaf)**, e.g. `└─ no → ask for a card → #frame-pay`.
+**Never** add a node-per-screen; the moment every line points at a frame, this
+stops being decided logic and just duplicates the Mermaid map. The renderer
+linkifies `#frame-{key}` mechanically and does not enforce this — it is your
+discipline as the author.
+
+### 7. Anti-patterns — do not ship these
 
 - A few short lines marooned in a big screen (sparse — fill it).
 - An outer `┌──┐ … └──┘` box around the whole frame (the bezel **is** the screen).

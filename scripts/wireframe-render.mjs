@@ -120,13 +120,14 @@ function parseBody(body, defaultDevice) {
   let openQLines = [];
   let streamMermaid = '';
   let streamMermaidLineStart = -1; // line index of opening ``` inside the mermaid block
-  const flows = []; // { title, frames: [ { name, key, device, scene, ascii, notes, lineNum } ] }
+  const flows = []; // { title, flowCards: [ { title, rawText } ], frames: [ { name, key, device, scene, ascii, notes, lineNum } ] }
   let currentFlow = null;
   let currentFrame = null;
 
   let mode = 'root';
   let inFence = false;
   let fenceType = '';
+  let fenceTitle = '';
   let fenceBuf = [];
   let fenceStartLine = -1;
 
@@ -153,7 +154,12 @@ function parseBody(body, defaultDevice) {
     // Handle fenced code blocks
     if (!inFence && /^```(\w*)/.test(line)) {
       inFence = true;
-      fenceType = line.match(/^```(\w*)/)[1].toLowerCase();
+      const fm = line.match(/^```(\w*)(.*)$/);
+      fenceType = fm[1].toLowerCase();
+      // Anything after the type token on the fence line is the info-string
+      // title (used only by the `flow` block). The block BODY is never
+      // touched, so the verbatim invariant holds.
+      fenceTitle = (fm[2] || '').trim();
       fenceBuf = [];
       fenceStartLine = i;
       fenceOpenLineForEOF = i + 1; // 1-based for error messages
@@ -165,11 +171,19 @@ function parseBody(body, defaultDevice) {
       if (fenceType === 'mermaid' && mode === 'stream') {
         streamMermaid = fenceBuf.join('\n');
         streamMermaidLineStart = fenceStartLine;
+      } else if (fenceType === 'flow' && currentFlow && !currentFrame) {
+        // Flow-level decision-flow card: a "decided logic" panel at the head
+        // of its flow, before any frame. Title comes from the fence info
+        // string (may be empty → untitled card); the BODY is verbatim,
+        // exactly like the ascii screen block (no Markdown, no Mermaid).
+        // Multiple cards per flow are kept in document order.
+        currentFlow.flowCards.push({ title: fenceTitle, rawText: fenceBuf.join('\n') });
       } else if (fenceType === 'ascii' && currentFrame) {
         currentFrame.ascii = fenceBuf.join('\n');
       }
       fenceBuf = [];
       fenceType = '';
+      fenceTitle = '';
       fenceStartLine = -1;
       continue;
     }
@@ -199,7 +213,7 @@ function parseBody(body, defaultDevice) {
       // Otherwise: start a new flow
       flushFlow();
       mode = 'flow';
-      currentFlow = { title: heading, frames: [] };
+      currentFlow = { title: heading, flowCards: [], frames: [] };
       continue;
     }
 
@@ -260,7 +274,7 @@ function parseBody(body, defaultDevice) {
           const heading = line.slice(3).trim();
           flushFlow();
           mode = 'flow';
-          currentFlow = { title: heading, frames: [] };
+          currentFlow = { title: heading, flowCards: [], frames: [] };
         } else if (/^### Frame: /.test(line)) {
           flushFrame();
           const frameName = line.slice('### Frame: '.length).trim();
@@ -550,12 +564,43 @@ function copyLinkButton(key) {
     `</button>`;
 }
 
+// ── Flow decision-flow cards ───────────────────────────────────────────────
+// Flow-level "decided logic" panels. The card BODY is verbatim monospace (NOT
+// Markdown, NOT Mermaid) — same fidelity as the ascii screen block. The only
+// transform is: any literal #frame-{key} token becomes an anchor to that
+// frame's existing per-frame anchor (#frame-{key}). All other characters are
+// escaped and left exactly as authored. The renderer does NOT validate where
+// links appear — "links at leaves only, sparse" is SKILL.md authoring
+// guidance, not code. The card title comes from the fence info string (never
+// the body) and may be empty (untitled card).
+function linkifyFlowBlock(rawText) {
+  // Escape first so box-drawing / arrows / branch glyphs are preserved exactly
+  // and no authored character can become markup, then splice anchors in on the
+  // escaped string (the #frame-{key} token contains no HTML-special chars).
+  const escaped = escapeHtml(rawText);
+  return escaped.replace(/#frame-([a-z][a-z0-9-]*)/g, (m, key) =>
+    `<a href="#frame-${key}">${m}</a>`);
+}
+
 // ── HTML generators ────────────────────────────────────────────────────────
 function generateFlowSections(flows) {
   let html = '';
   for (const flow of flows) {
     html += `<section class="flow-section">\n`;
     html += `  <h2>${escapeHtml(flow.title)}</h2>\n`;
+    // Plain bordered "logic card" panels — NOT screens: no device chrome,
+    // no bezel, no status strip. One panel per flow card, in document order,
+    // at the HEAD of the flow section before the frame strip. Verbatim body
+    // in a monospace pre; an optional title heading from the fence info
+    // string (omitted entirely when the card is untitled).
+    for (const card of flow.flowCards) {
+      html += `  <div class="logic-card">\n`;
+      if (card.title) {
+        html += `    <div class="logic-card-title">${escapeHtml(card.title)}</div>\n`;
+      }
+      html += `    <pre>${linkifyFlowBlock(card.rawText)}</pre>\n`;
+      html += `  </div>\n`;
+    }
     html += `  <div class="frame-strip">\n`;
     for (const frame of flow.frames) {
       const key = frame.key;

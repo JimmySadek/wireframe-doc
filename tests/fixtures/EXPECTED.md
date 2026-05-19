@@ -136,3 +136,35 @@ Open /tmp/test-out.html in a browser and verify:
 
 This is the Blocker 2 (XSS sanitization) fix verification.
 The sanitization happens client-side in the browser — the HTML file itself will contain the raw Markdown in `<script type="text/markdown">` blocks; DOMPurify strips XSS when the browser runs the init script.
+
+---
+
+## flow-block.md
+
+**Expected:** exit 0, HTML written to /tmp/test-out.html
+
+```
+Wrote /tmp/test-out.html (XX.X KB, 2 frames across 1 flows)
+exit: 0
+```
+
+Verifies the flow-level decision-flow cards (v1.3.0):
+
+1. **Three** `<div class="logic-card">` panels are emitted at the HEAD of
+   the "Checkout flow" section, before the frame strip, in document order:
+   "Entry & identity", then "Failure handling", then the untitled card.
+2. The first two cards have a `<div class="logic-card-title">` heading
+   (`Entry &amp; identity`, then `Failure handling`); the third (bare
+   ` ```flow ` fence, no title text) has **no** title element but still
+   renders its `<pre>` correctly — the no-title fallback.
+3. Each card BODY is preserved **verbatim** in a monospace `<pre>` — the
+   branch line `├─ yes → charge it, skip entry`, the `└─` branches, and
+   the `▼` down-arrow appear exactly as authored. The fence info-string
+   title is NOT consumed from the body.
+4. The single `#frame-pay` token (in the first card) renders as
+   `<a href="#frame-pay">#frame-pay</a>`, targeting the existing
+   per-frame anchor; all other characters are untouched.
+5. The logic cards have **no device chrome** — no `device-frame`
+   bezel/status-strip/browser-bar markup inside any panel.
+6. A spec with no ` ```flow ` block is unaffected (a panel is only emitted
+   per ` ```flow ` block a flow actually contains).

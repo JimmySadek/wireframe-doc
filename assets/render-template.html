@@ -137,6 +137,39 @@
       padding-bottom: 8px;
       border-bottom: 2px solid var(--border);
     }
+    /* ── Decision-flow "logic card" ──
+       The decided-logic panel that complements the Mermaid screen-map: it
+       sits at the HEAD of its flow, above the screens it governs. NOT a
+       screen — no device bezel/chrome. A plain neutral bordered panel, kept
+       visually distinct from both the device frames and the sticky notes but
+       inside the same neutral-gray system (reuses --accent / --border). */
+    .logic-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-card);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    .logic-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .logic-card pre {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre;
+      color: var(--text);
+    }
+    .logic-card a { color: var(--accent); text-decoration: underline; }
+    .logic-card a:hover { text-decoration: none; }
+
     .frame-strip {
       display: flex;
       align-items: flex-start;

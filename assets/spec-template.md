@@ -74,6 +74,41 @@ graph LR
 
 ## Onboarding flow
 
+<!--
+OPTIONAL decision-flow cards. The fenced ```flow blocks just below are the
+"decided logic" for this flow — keep, edit, or delete them. They COMPLEMENT
+the Mermaid screen-map (Mermaid = which screens connect; this = the rules
+that decide what the user sees). The text after ```flow on the fence line is
+the card TITLE; the block BODY is rendered verbatim in monospace (Markdown
+does NOT render; it is NOT a screen — no device chrome). You may add MANY
+named cards under one flow heading (before the first ### Frame:) — they
+render as separate titled panels in document order. A bare ```flow fence
+with no title still renders (untitled card). The six moves: fan-in entry ·
+▼ progression · a question · ├─/└─ branches · indented sub-options ·
+(parenthetical aside) + free-prose tail. #frame-{key} becomes a link — keep
+links OPTIONAL, SPARSE, on decided OUTCOMES (leaves) only; never a node per
+screen (that just re-draws Mermaid).
+-->
+
+```flow Entry & identity
+arrives via link or direct URL
+            │
+            ▼
+  Already verified on this device?
+  ├─ yes → skip OTP, go straight in
+  └─ no  → send code, collect it  → #frame-otp
+           (resend allowed after 60s)
+```
+
+```flow Code retry policy
+code submitted
+        │
+        ▼
+  Correct?
+  ├─ yes → continue into the app
+  └─ no  → show attempts left, allow resend after 60s
+```
+
 ### Frame: Landing
 key: landing
 
