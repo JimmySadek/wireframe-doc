@@ -7,10 +7,13 @@ and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [1.3.0] — 2026-05-19
 
-Adds the **decision-flow block** — a flow-level "decided logic" layer that
-complements (does not replace) the Mermaid screen-map. Still
-zero-dependency, single-file, offline-safe; the device-screen chrome
-contract and every existing spec's output are unchanged.
+Converges three threads into one release: the **decision-flow block** (a
+flow-level "decided logic" layer that complements — does not replace — the
+Mermaid screen-map), the operational **COMPOSE-THE-SCREEN** craft rule, and
+a **single canonical screenshot-verified example** replacing the prior four.
+Still zero-dependency, single-file, offline-safe; the renderer and the
+device-screen chrome contract are unchanged and every existing spec's output
+is byte-identical.
 
 ### Added
 
@@ -56,6 +59,42 @@ contract and every existing spec's output are unchanged.
   Warning). Specs without a ` ```flow ` block render byte-identically (the
   only template change is the static `.logic-card` CSS plus the shared
   collapse rule and the meta-card placeholder).
+
+### Changed
+
+- **Operational COMPOSE-THE-SCREEN craft rule (replaces "FILL THE
+  SCREEN").** The #1 quality rule is reframed from "author enough content to
+  fill it" to an operational composition discipline applied consistently in
+  `SKILL.md`, `README.md`, and `assets/spec-template.md`: every screen has a
+  TOP (title/nav/status), a BODY (its real purpose), and a BOTTOM (primary
+  action/tab nav/status); use the per-device ROW budget like the column
+  budget so the bottom region lands near the bottom; reach it with the
+  screen's real elements plus **deliberate blank lines as a composition
+  tool** — never invented filler; a genuinely simple screen stays simple but
+  is still composed (the failure mode is content jammed at the top with a
+  void, not deliberate empty space). The inaccurate "the renderer scales the
+  font so … the rows fill the height" line is corrected — the renderer
+  fits the font to **width** only and renders rows verbatim top to bottom;
+  it does not move content vertically, so vertical composition is the
+  authoring agent's job. The per-device column **and** row target table is
+  retained. No renderer or template change.
+- **Single canonical, screenshot-verified example.** The four prior examples
+  (`examples/minimal/`, `examples/multi-flow/`, `examples/dashboard/`,
+  `examples/stress-test/`) are replaced by one canonical
+  `examples/showcase/poc.md` — the **FieldPilot job dispatch** deck (6 frames
+  across phone/desktop/tablet, 2 flows): Set the scene, Open questions, a
+  keys-only Stream → screens Mermaid map, three decision-flow `flow` cards
+  (one deck-level meta routing card + one flow-scoped card per flow), and
+  rich reviewer notes — every frame composed top→body→bottom and
+  screenshot-verified per the verified-example protocol. SKILL.md and README
+  "## Examples" now reference only this example; the render command path is
+  updated.
+- **README refresh.** The hero screenshots `assets/sample.png` and
+  `assets/sample-shared.png` are regenerated from the rendered v1.3.0
+  showcase (a composed full frame; a shared-frame deep link with the "Shared
+  frame" marker) with updated captions; the README "## Examples" section,
+  the duplicated craft text (now COMPOSE-THE-SCREEN), and the version badge
+  (→ 1.3.0) are updated to match.
 
 ## [1.2.0] — 2026-05-17
 

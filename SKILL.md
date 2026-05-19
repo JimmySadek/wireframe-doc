@@ -83,8 +83,26 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 
 Each rendered frame is a **screen with a bezel** (2px border, device corners, a status strip on phone/tablet, a browser-chrome bar on desktop/custom). The screen is the chrome — **you don't draw an outer box**, just the screen contents. Content is clipped at the bezel like a real screen.
 
-**ASCII sizing — FILL THE SCREEN (the #1 quality rule):**
-The device frame is a real screen, not a sticky note. Author enough content to **fill it** — a header/title row, the body, actions, and often a bottom bar. A few short lines floating in a big empty screen looks broken, not low-fi. Match **both** the column and row target for the device:
+**ASCII sizing — COMPOSE THE SCREEN: top, body, bottom (the #1 quality rule):**
+The device frame is a real screen, not a sticky note. Compose it like one:
+
+1. Every screen has a **TOP** (title / nav / status), a **BODY** (its real
+   purpose), and a **BOTTOM** (primary action / tab nav / status). Compose
+   across all three.
+2. Use the per-device **ROW budget** like the column budget. The BOTTOM
+   region's last line should land near the **bottom** of the row budget.
+3. Reach it with the screen's **real elements plus deliberate blank lines as
+   a composition tool** — add real content / deliberate spacing until the
+   rendered frame has **no large empty band at the bottom**. Verify by
+   rendering.
+4. **Never pad with invented content.** A genuinely simple screen stays
+   simple but is still composed (top at top, bottom region near the bottom) —
+   not jammed at the top with a void.
+5. The renderer **fits the font to width** and renders rows **verbatim, top
+   to bottom — it does not move content vertically.** Vertical composition is
+   your job as the authoring agent; that is what this rule teaches.
+
+Match **both** the column and row target for the device:
 
 | Device | Columns | Rows | Renders at |
 |--------|---------|------|------------|
@@ -93,7 +111,7 @@ The device frame is a real screen, not a sticky note. Author enough content to *
 | `desktop` (1280×800) | **≈ 95–125** | **≈ 28–34** | ~16–21px |
 | `custom WxH` | **≈ W ÷ 10** | **≈ H ÷ 22** | ~16px |
 
-The renderer scales the font so the widest line fills the width and the rows fill the height — authoring to both targets is what makes a frame read like a real screen. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine; the *default* is a populated screen. Art far narrower than target renders chunky; far wider is clamped (min 7px) and clipped at the bezel.
+The renderer scales the font so the widest line fills the width; it does **not** stretch rows to fill the height — composing top→body→bottom to the row target is what makes a frame read like a real screen. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine — keep it simple but still composed, never jammed at the top with a void. Art far narrower than target renders chunky; far wider is clamped (min 7px) and clipped at the bezel.
 
 **CLI flags:**
 - `--lenient` — warn instead of error for `frame_count` mismatches and invalid `device:` values
@@ -107,7 +125,7 @@ This section teaches you, the authoring agent, how to produce top-tier wireframe
 
 ### 1. Compose like a real screen
 
-Every screen has a **top** (title / nav / actions), a **body** (the real content), and usually a **bottom** (tab nav / status / primary action). Don't float a few lines in the middle — fill it to the column **and** row target (see § ASCII sizing). Density by device: `phone` = one focused task + one primary action; `tablet` = one rich view; `desktop`/`custom` = dense, multi-panel (tables, KPI cards, side rails).
+Every screen has a **TOP** (title / nav / actions), a **BODY** (its real purpose), and a **BOTTOM** (tab nav / status / primary action). Compose across all three: the top sits at the top, the bottom region's last line lands near the **bottom** of the row budget, the body fills between them (see § ASCII sizing). Reach the row target with the screen's **real elements plus deliberate blank lines** — never invented filler. A genuinely simple screen stays simple but is still composed (top at top, bottom region near the bottom); the failure mode is content **jammed at the top with a void below**, not deliberate empty space. Density by device: `phone` = one focused task + one primary action; `tablet` = one rich view; `desktop`/`custom` = dense, multi-panel (tables, KPI cards, side rails).
 
 Hierarchy in **pure ASCII** (never `##`/`**` — they won't render):
 - **Title / section:** a short label then a full-width rule, or an `UPPERCASE` label.
@@ -217,7 +235,7 @@ discipline as the author.
 
 ### 7. Anti-patterns — do not ship these
 
-- A few short lines marooned in a big screen (sparse — fill it).
+- Content jammed at the top with a large empty band below (compose top→body→bottom to the row target — deliberate empty space is valid, invented filler is not).
 - An outer `┌──┐ … └──┘` box around the whole frame (the bezel **is** the screen).
 - `##`, `**`, or `` ``` `` **inside the screen** — literal noise; use ASCII/emoji hierarchy.
 - Misaligned columns / inconsistent line widths.
@@ -229,16 +247,13 @@ discipline as the author.
 
 | Example | Description |
 |---------|-------------|
-| `examples/minimal/poc.md` | Smallest valid 2-frame spec (note-taking app onboarding). Good starting point. |
-| `examples/multi-flow/poc.md` | 5-frame spec with 2 flows, two desktop frames, multi-paragraph notes. Shows the full feature set. |
-| `examples/dashboard/poc.md` | 6-frame **desktop** example (support-ticket queue console). Dense tables, KPI cards, ASCII charts, one `custom 1440x900` frame — the ASCII-fit showcase. |
-| `examples/stress-test/poc.md` | Real-world-scale stress test. Mermaid with subgraphs, rich notes, edge cases. |
+| `examples/showcase/poc.md` | The single canonical, screenshot-verified showcase — **FieldPilot job dispatch** (6 frames, 2 flows). Exercises the full feature set: Set the scene, Open questions, a keys-only Stream → screens Mermaid map, **three decision-flow `flow` cards** (one deck-level meta routing card + one flow-scoped card per flow), and 6 frames across phone / desktop / tablet with rich reviewer notes — every frame composed top→body→bottom. This is what good skill output looks like. |
 
-Render any example:
+Render the example:
 ```
 node ~/.claude/skills/wireframe-doc/scripts/wireframe-render.mjs \
-  ~/.claude/skills/wireframe-doc/examples/minimal/poc.md \
-  /tmp/test-minimal.html && open /tmp/test-minimal.html
+  ~/.claude/skills/wireframe-doc/examples/showcase/poc.md \
+  /tmp/test-showcase.html && open /tmp/test-showcase.html
 ```
 
 ## Tests
