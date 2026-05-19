@@ -1,17 +1,18 @@
 ---
 name: wireframe-doc
-version: 1.3.0
+version: 1.4.0
 author: Jimmy Sadek <gamal.sadek@gmail.com>
 license: MIT
-description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII frames inside thin device-frame chrome, Mermaid flow diagrams, sticky-note style reviewer notes, and a Netflix-style horizontal canvas with tap-to-enlarge modal. Designed for asynchronous founder/team review BEFORE committing to UI design or Figma. Use this skill whenever the user wants to wireframe, mockup, sketch screens, or share screen flows for review — including phrases like "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user doesn't say the word "wireframe" explicitly — sketching screens, scaffolding a user flow, sharing frames with notes for async team review, and replacing heavy Figma exports with lightweight shareable URLs are all core use cases. Bundle scales with frame count — ~50 KB small to ~215 KB for a large multi-flow deck (still far smaller than a 1–2 MB Figma export).
+description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII screens inside thin device-frame chrome, a Mermaid flow map, decision-flow logic cards, sticky-note reviewer notes, and a horizontal tap-to-enlarge canvas. For asynchronous founder/team review BEFORE committing to UI design or Figma. Use whenever the user wants to wireframe, mock up, sketch screens, or share a screen flow for review — including "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user never says "wireframe" — scaffolding a user flow, sketching screens, or sharing frames with notes for async review are core cases. Output is one self-contained HTML file (~50 KB small to ~215 KB for a large multi-flow deck), far lighter than a Figma export.
 metadata:
   short-description: Markdown-to-HTML wireframe review docs
   triggers:
-    - wireframe doc
-    - low-fi wireframes
-    - product review wireframes
-    - cheap wireframes
-    - wireframe template
+    - wireframe deck
+    - cofounder screen share
+    - screen flow review
+    - pre-Figma wireframes
+    - low-fi async mockup
+    - frames for the [feature]
 ---
 
 # wireframe-doc
@@ -258,7 +259,7 @@ node ~/.claude/skills/wireframe-doc/scripts/wireframe-render.mjs \
 
 ## Tests
 
-Eight fixture files in `tests/fixtures/` cover all blocker and important-fix verifications (including `flow-block.md` for the decision-flow card). Run them manually:
+The fixtures in `tests/fixtures/*.md` cover all blocker and important-fix verifications (including `flow-block.md` for the decision-flow card and `valid-multi-device.md` for phone/tablet/desktop/`custom WxH` chrome coverage). Run them manually:
 
 ```bash
 cd ~/.claude/skills/wireframe-doc
@@ -268,6 +269,18 @@ for f in tests/fixtures/*.md; do
   echo "exit: $?"
   echo ""
 done
+```
+
+Then render the canonical showcase as an explicit step in the same loop — it exercises the full feature set across phone / tablet / desktop chrome:
+
+```bash
+node scripts/wireframe-render.mjs examples/showcase/poc.md /tmp/showcase.html 2>&1
+echo "exit: $?"
+# Expected: exit 0, no "Syntax error" / "Warning" lines on stderr.
+# Verify chrome present for all three device types:
+grep -c 'device-frame device-phone'   /tmp/showcase.html   # ≥ 1
+grep -c 'device-frame device-tablet'  /tmp/showcase.html   # ≥ 1
+grep -c 'device-frame device-desktop' /tmp/showcase.html   # ≥ 1
 ```
 
 See `tests/fixtures/EXPECTED.md` for expected behavior per fixture.

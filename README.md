@@ -1,6 +1,6 @@
 ![wireframe-doc — Markdown spec to HTML wireframes](assets/banner.jpg)
 
-[![Version](https://img.shields.io/badge/version-1.3.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 # wireframe-doc
@@ -9,7 +9,7 @@
 
 A Claude Code skill that turns a Markdown spec into a single self-contained HTML
 page of low-fidelity screen wireframes — ASCII frames in device chrome, a flow
-diagram, reviewer notes — that you share as one URL. ~50 KB for a small deck,
+diagram, decision-flow logic cards, reviewer notes — that you share as one URL. ~50 KB for a small deck,
 ~215 KB for a large multi-flow one — no design tool, no export. Built for the
 messy moment before design: when you need cofounders or your team reacting to
 the screens in your head.

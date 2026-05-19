@@ -5,6 +5,63 @@ All notable changes to the `wireframe-doc` skill are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-05-20
+
+A focused triggering-quality + test-coverage release. Closes the v1.3.0
+fast-follow on the over-limit `SKILL.md` description, realigns the
+`metadata.triggers` list to the description's strongest implicit-case
+phrases, adds the first fixture that exercises every device type in one
+deck, and wires the canonical showcase into the documented test loop. No
+renderer changes, no spec-syntax changes, no template changes, no visual
+changes.
+
+### Added
+
+- **`tests/fixtures/valid-multi-device.md`** — first fixture exercising
+  all four device types (`phone` / `tablet` / `desktop` / `custom WxH`)
+  in a single deck, using `default_device: phone` plus per-frame
+  `device:` overrides for the other three. `tests/fixtures/EXPECTED.md`
+  gains structural assertions on the rendered device-chrome markup
+  (per-device frame class, status-strip / browser-chrome / window-dots
+  markup, per-custom-size sizing rule), so a regression that broke
+  desktop chrome or `custom WxH` font-fitting would fail a fixture
+  instead of slipping through to manual screenshot review.
+
+### Changed
+
+- **`SKILL.md` `description:` rewritten under Codex's 1024-character
+  skill-load limit** (1,116 → 975 characters; UTF-8 981 bytes; under
+  1024 by 49 chars / 43 bytes). Preserves every quoted trigger phrase
+  from the previous description ("build me wireframes", "share screens
+  with my cofounders", "low-fi mockup", "wireframe deck", "screen flow
+  before we build it", "X frames for the [feature]", "cheap alternative
+  to Figma", "show my team the screens I have in mind") and the
+  "trigger even when the user never says 'wireframe'" instruction;
+  trims pure redundancy and surfaces the decision-flow logic cards as
+  a first-class capability alongside the Mermaid flow map. Fixes the
+  recurring non-fatal Codex skill-load error on the v1.3.0
+  description.
+- **`SKILL.md` `metadata.triggers:` realigned** to the description's
+  stronger implicit-case phrases. New list: `wireframe deck`,
+  `cofounder screen share`, `screen flow review`, `pre-Figma wireframes`,
+  `low-fi async mockup`, `frames for the [feature]`. Drops the five
+  prior keyword-noun entries (e.g. `cheap wireframes`, `wireframe
+  template`) the audit flagged as weaker matches than phrases already
+  in the description. Reinforces the "trigger without saying
+  'wireframe'" coverage the description explicitly defends.
+- **`SKILL.md` § Tests** — the documented test loop now (a) replaces
+  the hardcoded "Eight fixture files" count with directory-derived
+  phrasing ("the fixtures in `tests/fixtures/*.md`"), so adding
+  fixtures no longer creates doc drift, and (b) adds an explicit
+  showcase-render step (`examples/showcase/poc.md`) after the fixture
+  loop, with copy-pasteable grep assertions that verify the rendered
+  HTML contains the phone, tablet, and desktop device-frame classes
+  the showcase exercises.
+- **`README.md`** — version badge bumped to 1.4.0; top-of-page summary
+  updated to surface decision-flow logic cards as a first-class
+  capability (the v1.3.0 feature wasn't yet reflected in the README's
+  high-level description).
+
 ## [1.3.0] — 2026-05-19
 
 Converges three threads into one release: the **decision-flow block** (a
