@@ -1,6 +1,6 @@
 ---
 name: wireframe-doc
-version: 1.4.0
+version: 1.5.0
 author: Jimmy Sadek <gamal.sadek@gmail.com>
 license: MIT
 description: Author and ship low-fidelity product wireframes as a single deployable HTML file from a Markdown spec — ASCII screens inside thin device-frame chrome, a Mermaid flow map, decision-flow logic cards, sticky-note reviewer notes, and a horizontal tap-to-enlarge canvas. For asynchronous founder/team review BEFORE committing to UI design or Figma. Use whenever the user wants to wireframe, mock up, sketch screens, or share a screen flow for review — including "build me wireframes", "share screens with my cofounders", "low-fi mockup", "wireframe deck", "screen flow before we build it", "X frames for the [feature]", "cheap alternative to Figma", or "show my team the screens I have in mind". Trigger even when the user never says "wireframe" — scaffolding a user flow, sketching screens, or sharing frames with notes for async review are core cases. Output is one self-contained HTML file (~50 KB small to ~215 KB for a large multi-flow deck), far lighter than a Figma export.
@@ -39,6 +39,31 @@ HTML in reviewer notes is sanitized by DOMPurify before rendering, so agent-gene
 - **Pixel-perfect mockups** — use a real design tool (Figma, Sketch, etc.). This is intentionally low-fidelity.
 - **Interactive prototypes** — the output is static HTML. No clickable flows, no state transitions.
 - **Brand-styled comps** — the template uses a neutral gray palette by design. It communicates intent, not aesthetics.
+
+## Lexicon
+
+Terms the skill uses. AI agents authoring with this skill should treat these as the canonical vocabulary.
+
+- **Frame** — one screen rendered with device chrome (the bezel, status strip / browser bar). Authored as a `### Frame: {Name}` block with a `key:` line.
+- **Flow** — a `## {Flow name}` section containing one or more frames in sequence.
+- **Scene** — optional flavor prose right after the `### Frame:` line, before the ASCII block. Sets context, not content.
+- **Notes** — the `**Notes:**` block alongside each frame. Full Markdown; reviewer-facing commentary, open questions, decisions.
+- **Device chrome** — the rendered bezel + status strip (phone / tablet) or browser bar (desktop / custom). The renderer draws it; the author does not.
+- **Row budget** — the per-device target number of ASCII rows (phone ~36–44, tablet ~44–56, desktop ~28–34). Used with the column budget to compose top → body → bottom.
+- **Decision-flow card** — a `flow` block that captures *decided logic* (conditions, rules, branches). Complements the Mermaid screen-map; never replaces it.
+- **Stream → screens map** — the `## Stream → screens` Mermaid flowchart. Maps which frames connect, using frame keys as node IDs.
+- **Deep link** — the per-frame URL anchor `#frame-{key}` used by the **Copy link** button. Position-independent — anchors don't change when frames are reordered.
+- **Kebab-case key** — every frame's REQUIRED unique identifier (lowercase, hyphens). Drives Mermaid node IDs and deep-link anchors.
+
+## Non-Negotiables
+
+Hard rules. Violating any of these breaks the visual or structural contract.
+
+- **The bezel IS the screen.** Don't draw an outer ASCII box around the frame — the device chrome is the border. Internal panels and tables are fine.
+- **Compose top → body → bottom.** Every frame has a top region, a body region, and a bottom region. Use deliberate blank lines, not invented content, to reach the row budget.
+- **ASCII inside ASCII; Markdown inside Notes.** The screen block is verbatim monospace. Notes is full Markdown. Never mix.
+- **Decision-flow cards ≠ Mermaid.** Mermaid maps which screens connect. Decision-flow cards capture decided logic. Use both; never substitute one for the other.
+- **Every frame has a kebab-case key.** Required, unique per doc, lowercase-with-hyphens. Used as Mermaid node ID and deep-link anchor.
 
 ## Quick start
 
@@ -117,7 +142,7 @@ The renderer scales the font so the widest line fills the width; it does **not**
 **CLI flags:**
 - `--lenient` — warn instead of error for `frame_count` mismatches and invalid `device:` values
 
-## Authoring great wireframes (craft system)
+## Authoring guide
 
 This section teaches you, the authoring agent, how to produce top-tier wireframes with this skill. The screen and the notes are two different channels — use each for what it's good at:
 

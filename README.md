@@ -1,6 +1,6 @@
 ![wireframe-doc — Markdown spec to HTML wireframes](assets/banner.jpg)
 
-[![Version](https://img.shields.io/badge/version-1.4.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 # wireframe-doc
@@ -17,10 +17,6 @@ the screens in your head.
 ![The FieldPilot showcase, enlarged: the desktop "Dispatch board" frame in a browser-chrome device shell — KPI strip on top, unassigned-jobs queue and fleet timeline as the body, action bar pinned to the bottom — beside its reviewer notes, with the Copy link button and the modal close/Prev/Next controls](assets/sample.png)
 
 *The "Dispatch board" frame (desktop) from the FieldPilot job-dispatch showcase, opened in the enlarge modal — composed top→body→bottom, its reviewer notes alongside. Authored as plain Markdown ASCII; shared as one URL.*
-
-![A shared FieldPilot link opened to the phone "Today's route" frame — enlarged in the modal, badged "SHARED FRAME — YOU WERE LINKED HERE", showing the technician's ordered stop list with its reviewer notes and the Copy link button](assets/sample-shared.png)
-
-*Open a shared link and you land on exactly that frame — here the phone "Today's route" screen — badged "SHARED FRAME — YOU WERE LINKED HERE" so the recipient knows which screen is under discussion.*
 
 ## The problem
 
@@ -47,7 +43,14 @@ reacted to the flow.
 
 Use wireframe-doc to decide what to build. Switch to a real design tool to make it look right.
 
----
+## What's inside
+
+When an AI agent triggers this skill, it reads `SKILL.md` — the authoring contract that teaches it how to produce a quality wireframe deck. Humans don't need to. Here's where to look:
+
+- **`SKILL.md`** — the authoring contract. Agents read this at trigger time; humans can skim it to understand what good output looks like.
+- **`examples/showcase/poc.md`** — the canonical screenshot-verified example (6 frames across phone, tablet, and desktop; 2 flows; the full feature set).
+- **`assets/spec-template.md`** — copy this to start a new wireframe doc.
+- **`tests/fixtures/`** — renderer fixture coverage.
 
 ## Quick start
 
@@ -57,159 +60,18 @@ Use wireframe-doc to decide what to build. Switch to a real design tool to make 
 4. Open `output.html` in a browser, or deploy to any static host
 5. Share the URL — or use a frame's **Copy link** button to share one screen for discussion
 
----
-
-## Author a wireframe doc
-
-1. Copy `assets/spec-template.md` to a new folder:
-   ```
-   cp ~/.claude/skills/wireframe-doc/assets/spec-template.md my-project/wireframes/spec.md
-   ```
-2. Fill in the YAML frontmatter (title, version, date, frame_count, deploy_url, and optionally default_device).
-3. Write the **Set the scene** body — what stream this covers, scope, who shouldn't weigh in, what's NOT in this draft.
-4. List 2-4 **Open questions** as bullets.
-5. Draw the **Stream → screens** Mermaid flowchart using frame keys as node IDs (or omit to auto-generate a linear graph).
-6. For each flow, add `## {Flow name}` sections with `### Frame: {Name}` blocks:
-   - `key: {kebab-key}` — REQUIRED on the line immediately after `### Frame:`
-   - `device: {phone|tablet|desktop|custom WxH}` — OPTIONAL override for this frame's viewport
-   - One scene line (optional flavor text)
-   - ASCII block (see syntax below)
-   - `**Notes:**` + content (full Markdown supported)
-
----
-
-## Render command
-
-```
-node scripts/wireframe-render.mjs <input.md> <output.html> [--lenient]
-```
-
-Example:
-```
-node scripts/wireframe-render.mjs my-spec.md output.html
-```
-
-The script prints a one-line success message with file size and frame count. Warnings and errors go to stderr.
-
-**`--lenient` flag:** warn instead of error for `frame_count` mismatches and invalid `device:` values.
-
----
-
 ## Deploy
 
-The render output is a **single self-contained HTML file**. Deploy it to any static host:
+The render output is a **single self-contained HTML file**. Deploy it anywhere:
 
-- **Vercel** — `vercel deploy --prod --yes` (add a `vercel.json` with root rewrite)
-- **Netlify** — drag-and-drop the HTML file to Netlify Drop
-- **GitHub Pages** — commit the HTML as `index.html` to `gh-pages` branch
-- **Amazon S3** — upload as a public static object with `Content-Type: text/html`
-- **Local review** — `open output.html` in any browser (no server required; CDN deps load from jsDelivr)
-
----
-
-## Spec syntax cheatsheet
-
-| Syntax | What it does |
-|--------|--------------|
-| `## {Flow name}` | Defines a flow section (e.g., `## Onboarding flow`) |
-| `### Frame: {Name}` | Defines a frame within the current flow |
-| `key: {kebab-key}` | Frame key — REQUIRED, on the line right after `### Frame:`. Used as Mermaid node IDs and the deep-link anchor (`#frame-{key}`) behind each frame's **Copy link** button. Must be lowercase kebab-case, unique per doc. |
-| `device: {value}` | Per-frame device override — OPTIONAL, placed after `key:` and before the scene paragraph. Values: `phone` / `tablet` / `desktop` / `custom WxH` (e.g., `custom 1440x900`). |
-| Paragraph after `### Frame:` line | Optional scene/flavor text (after `key:` and `device:` lines) |
-| ` ```ascii ` block | Screen *contents* (monospace, whitespace preserved). The device frame is the screen border — **don't draw an outer box**; internal panels/tables are fine. Emoji ≈ 2 columns. |
-| `**Notes:**` + content | Reviewer notes — full Markdown supported (bullets, paragraphs, nested lists, blockquotes, code, headings) |
-| ` ```mermaid ` block under `## Stream → screens` | Flow diagram using frame keys as node IDs. The renderer substitutes frame headings as labels. If omitted, a linear graph is auto-generated. |
-| ` ```flow {Card title} ` block — **placement = scope** | Decision-flow card: the *decided logic* (conditions/rules that decide what a user sees). **Positionally scoped:** authored at the **meta level** (before the first `## {Flow}`, alongside scene / open questions / Stream → screens) → a **deck-level** card rendered once before all flows (use for global entry / identity / routing logic); authored under a `## {Flow}` heading (before its first `### Frame:`) → that **flow's** card at its head (flow-local logic). Text after `flow` is the card title (optional → untitled card); the BODY is verbatim monospace. Complements the Mermaid screen-map (does not replace it); NOT a screen, no device chrome, Markdown does not render. **Many** named cards allowed at **both** levels — separate titled panels in document order; **titled cards are collapsible** (click the title). The literal token `#frame-{key}` becomes an anchor to that frame — OPTIONAL, sparse, on decided outcomes only. A `flow` fence that cannot attach (e.g. inside a frame) prints a one-line stderr Warning and is skipped (render still exits 0). |
-
-**YAML frontmatter fields:**
-- `title` — page title + header h1
-- `version` — shown in header (e.g., `v0`, `v1`)
-- `date` — ISO date (YYYY-MM-DD)
-- `frame_count` — total frame count (validated against actual count — error on mismatch; `--lenient` to warn)
-- `deploy_url` — URL without `https://` (shown in header + footer)
-- `default_device` — OPTIONAL. Default device for all frames. Values: `phone` (default) / `tablet` / `desktop` / `custom WxH`.
-
-**Device dimensions** (recognizable 1× logical viewports; height is a screen-shape floor — a longer screen still grows):
-- `phone` → 390 × 844 (iPhone 14/15) — **default**
-- `tablet` → 768 × 1024 (iPad portrait)
-- `desktop` → 1280 × 800 (laptop, 16:10)
-- `custom WxH` → W × H (e.g., `custom 1440x900`)
-
-Each rendered frame is a **screen with a bezel** (2px border, device corners, a status strip on phone/tablet, a browser-chrome bar on desktop/custom). The screen is the chrome — **you don't draw an outer box**, just the screen contents. Content is clipped at the bezel like a real screen.
-
-**ASCII sizing — COMPOSE THE SCREEN: top, body, bottom (the #1 quality rule):**
-The device frame is a real screen, not a sticky note. Compose it like one:
-
-1. Every screen has a **TOP** (title/nav/status), a **BODY** (its real purpose), and a **BOTTOM** (primary action/tab nav/status). Compose across all three.
-2. Use the per-device **ROW budget** like the column budget — the BOTTOM region's last line should land near the **bottom** of the row budget.
-3. Reach it with the screen's **real elements plus deliberate blank lines as a composition tool** — add real content / deliberate spacing until the rendered frame has **no large empty band at the bottom**. Verify by rendering.
-4. **Never pad with invented content.** A genuinely simple screen stays simple but is still composed (top at top, bottom region near the bottom) — not jammed at the top with a void.
-5. The renderer **fits the font to width** and renders rows **verbatim, top to bottom — it does not move content vertically.** Vertical composition is the authoring agent's job.
-
-Match **both** the column and row target:
-
-| Device | Columns | Rows | Renders at |
-|--------|---------|------|------------|
-| `phone` (390×844) | **≈ 34–44** | **≈ 36–44** | ~13–17px |
-| `tablet` (768×1024) | **≈ 70–95** | **≈ 44–56** | ~12–17px |
-| `desktop` (1280×800) | **≈ 95–125** | **≈ 28–34** | ~16–21px |
-| `custom WxH` | **≈ W ÷ 10** | **≈ H ÷ 22** | ~16px |
-
-The renderer scales the font so the widest line fills the width; it does **not** stretch rows to fill the height — composing top→body→bottom to the row target is what makes a frame read like a real screen. Keep every line the same display width so internal panels align. **Emoji are welcome as icons** — counted as 2 columns, so budget 2 cells each. A genuinely sparse screen (a one-line confirmation) is fine — keep it simple but still composed, never jammed at the top with a void. Art far narrower than target renders chunky; far wider is clamped (min 7px, max 22px) and clipped at the bezel.
-
-**Rich Markdown:**
-Four content areas support full GitHub-flavoured Markdown (rendered client-side by marked.js):
-- Set the scene body
-- Open questions block
-- Per-frame scene line
-- Per-frame notes
-
-Supported: bold, italic, inline code, links, blockquotes, unordered + ordered lists, nested lists, horizontal rules, `h3`/`h4` headings, multi-paragraph content.
-
-HTML in Markdown is sanitized by DOMPurify — unsafe tags (`<script>`, `<iframe>`, event handlers) are stripped. Safe tags render normally.
-
-ASCII blocks (` ```ascii ` fences) stay literal in `<pre>` for correct monospace rendering.
-
-**CDN fallback:** if Mermaid or marked.js fail to load from the CDN (including failing to load at all), the affected blocks' raw source is shown as a `<pre>` after 2 seconds — the two fallbacks are independent, so a failure of one library does not suppress the other's content.
-
-**Mermaid integration:**
-- Use frame keys directly as node IDs in the Mermaid block
-- The renderer substitutes frame headings as labels (e.g., `landing` becomes `landing["Landing page"]`)
-- Words inside brackets/quotes (label text) are NOT validated as frame keys — only bare node identifiers are checked
-- Validation: if a bare Mermaid node ID doesn't match any frame key, the render exits with an error (typo catcher)
-- Warning: if a frame key is absent from the Mermaid diagram, the renderer warns
-- Auto-generation: if the `## Stream → screens` block is omitted entirely, the renderer auto-generates a linear `graph LR; key1 --> key2 --> ...` from frame order
-
-**Sharing one frame:** every frame has a **Copy link** button (with a hover/focus education tooltip explaining the use case) — the primary way a reviewer shares a single screen for discussion. It copies the frame's deep link, whose underlying form is `#frame-{key}` (e.g., `#frame-landing`); position-independent, so anchors don't change when you reorder frames. Opening a shared link highlights the linked frame with a "Shared frame" marker so the recipient sees exactly which screen was sent.
-
----
-
-## Iteration
-
-1. Edit the source `.md` — change one `### Frame:` block or add a new flow.
-2. Re-run: `node scripts/wireframe-render.mjs <input.md> <output.html>`
-3. Re-deploy (if hosted)
-4. Share the root URL — previous versions stay live for comparison.
-
-Per-frame edits are cheap: one `### Frame:` block → one card in the output HTML.
-
----
+- **Vercel** — `vercel deploy --prod --yes`
+- **Netlify** — drag the HTML file to Netlify Drop
+- **GitHub Pages** — commit as `index.html` to a `gh-pages` branch
 
 ## Examples
 
-One canonical, screenshot-verified example ships with the skill:
+One canonical, screenshot-verified example ships with the skill — `examples/showcase/poc.md` (FieldPilot job dispatch, 6 frames across phone / desktop / tablet, 2 flows). Render it:
 
-| Directory | Description |
-|-----------|-------------|
-| `examples/showcase/` | **FieldPilot job dispatch** — 6 frames across phone / desktop / tablet, 2 flows. The full feature set: Set the scene, Open questions, a keys-only Stream → screens map, three decision-flow `flow` cards (a deck-level meta routing card + one flow-scoped card per flow), and rich reviewer notes — every frame composed top→body→bottom. |
-
-Render it:
 ```
 node scripts/wireframe-render.mjs examples/showcase/poc.md /tmp/showcase.html
 ```
-
----
-
-## Tests
-
-See `tests/fixtures/` and `tests/fixtures/EXPECTED.md`.

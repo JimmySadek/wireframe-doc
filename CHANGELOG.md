@@ -5,6 +5,23 @@ All notable changes to the `wireframe-doc` skill are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-05-20
+
+A documentation-shape release that splits two collapsed audiences onto two surfaces. The README becomes a product page; the `SKILL.md` becomes a more explicit authoring contract. Renderer, template, spec-template, examples, and fixtures are untouched.
+
+### Changed
+
+- **`README.md` rewritten as a product page** — 215 lines → ~80 lines. Removes the spec-syntax cheatsheet (now exclusively in `SKILL.md`), CLI flag documentation, YAML frontmatter reference, the duplicate "Author a wireframe doc" Quick Start block (the README had two adjacent Quick Starts), the Iteration section, and the Tests pointer. Keeps the banner, tagline, hero paragraph + screenshot, problem statement, audience block, vs-Figma comparison, Quick start, Deploy, and Examples. Adds a "What's inside" section pointing readers at `SKILL.md` as the authoring contract.
+- **Removed from `README.md`** — the `assets/sample-shared.png` reference. The file remains in `assets/` for future content.
+- **`SKILL.md`** section rename: `Authoring great wireframes (craft system)` → `Authoring guide`. No content change inside the section; the parenthetical was a self-aware tell.
+
+### Added
+
+- **`SKILL.md` § Lexicon** (10 terms). Canonical domain vocabulary for AI agents authoring with the skill: Frame, Flow, Scene, Notes, Device chrome, Row budget, Decision-flow card, Stream → screens map, Deep link, Kebab-case key. Each term is one short definition; the value is making vocabulary explicit and stable so agents converge on the same words.
+- **`SKILL.md` § Non-Negotiables** (5 imperatives). Positive-form rules complementing the existing Anti-Patterns coda: the bezel IS the screen; compose top → body → bottom; ASCII inside ASCII / Markdown inside Notes; decision-flow cards ≠ Mermaid; every frame has a kebab-case key. Each is one line + a one-line consequence.
+
+No renderer changes; no template changes; no spec-syntax changes; no visual changes; no test-fixture changes.
+
 ## [1.4.0] — 2026-05-20
 
 A focused triggering-quality + test-coverage release. Closes the v1.3.0
